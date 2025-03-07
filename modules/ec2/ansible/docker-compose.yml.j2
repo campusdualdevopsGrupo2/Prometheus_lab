@@ -1,0 +1,9 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - type: bind
+        source: /data/prometheus
+        target: /usr/share/elasticsearch/data
