@@ -22,10 +22,10 @@ resource "aws_instance" "ec2_node" {
   subnet_id       = var.subnet_ids[(count.index % 3)]
   key_name        = aws_key_pair.key.key_name
   disable_api_stop = false
-  iam_instance_profile = aws_iam_instance_profile.ec2_ssm_instance_profile.name
+  
 
   # Seguridad
-  vpc_security_group_ids = [aws_security_group.elasticsearch.id,data.aws_security_group.default.id]
+  vpc_security_group_ids = [aws_security_group.prometheus.id,data.aws_security_group.default.id]
   root_block_device {
     volume_size = 30  # Tamaño en GB del volumen raíz (aumentado a 50 GB en este ejemplo)
     volume_type = "gp2"  # Tipo de volumen (general purpose SSD)
@@ -45,10 +45,6 @@ resource "aws_instance" "ec2_node" {
       "sudo apt-get update -y",
       "sudo apt-get install -y nfs-common",
       
-      # Instalar SSM Agent:
-      "sudo snap install amazon-ssm-agent --classic",
-      "sudo systemctl start snap.amazon-ssm-agent.amazon-ssm-agent.service",
-
       # Montar EFS
       "sudo mkdir -p /mnt/efs",
       "sudo mount -t nfs4  fs-09f3adbae659e7e88.efs.eu-west-3.amazonaws.com:/ /mnt/efs",
@@ -69,24 +65,6 @@ resource "aws_instance" "ec2_node" {
     }
   }
 }
-
-locals{
-  json_elastic=jsonencode([for instance in aws_instance.ec2_node : { name = instance.tags.Name, ip = instance.private_ip }])
-}
-resource "null_resource" "generate_seed_file_json" {
-  provisioner "local-exec" {
-    command = "echo '${local.json_elastic}' | jq .  > ../modules/ec2/ansible/seed_hosts.json;"
-    
-  }
-  triggers = {
-    always_run = "${timestamp()}"
-  }
-
-  depends_on = [aws_instance.ec2_node]
-}
-
-
-
 
 
 resource "null_resource" "update_hosts_ini1" {

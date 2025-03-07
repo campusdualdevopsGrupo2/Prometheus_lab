@@ -1,9 +1,37 @@
 services:
+  traefik:
+    image: traefik:v2.5
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=tuemail@ejemplo.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/mnt/efs/traefik/letsencrypt:/letsencrypt"  # Volumen en EFS para certificados
+    labels:
+      - "traefik.enable=true"
+    restart: always
+
   prometheus:
     image: prom/prometheus
     ports:
       - "9090:9090"
     volumes:
-      - type: bind
-        source: /data/prometheus
-        target: /usr/share/elasticsearch/data
+      - "/mnt/efs/prometheus:/prometheus"  # Volumen en EFS para datos de Prometheus
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`{{ instance_tag }}.campusdual.mkcampus.com`)"
+      - "traefik.http.routers.prometheus.entrypoints=websecure"
+    restart: always
+
+
+
+
