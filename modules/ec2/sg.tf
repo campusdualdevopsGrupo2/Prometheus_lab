@@ -1,0 +1,86 @@
+### 6. Security Groups
+resource "aws_security_group" "elasticsearch" {
+  name        = "${var.project_name}-${var.environment}-es-sg"
+  description = "SG for Elasticsearch"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    from_port   = 9090
+    to_port     = 9090
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Elasticsearch REST API"
+  }
+  ingress {
+    from_port   = 4317
+    to_port     = 4317
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  # Ingress para NFS (puerto 2049) desde EC2
+  ingress {
+    from_port   = 2049
+    to_port     = 2049
+    protocol    = "tcp"
+    description = "Allow NFS traffic from EC2 instances"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Elasticsearch internal comunication
+  ingress {
+    from_port   = 9300
+    to_port     = 9300
+    protocol    = "tcp"    
+    self = true
+  }
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    #security_groups = [aws_security_group.elasticsearch_alb.id]
+    cidr_blocks = ["0.0.0.0/0"]
+
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.project_name}-${var.environment}-es-sg",
+    Grupo="g2"
+  }
+}
+
+resource "aws_security_group" "elasticsearch_alb" {
+  name        = "${var.project_name}-${var.environment}-es-alb-sg"
+  description = "SG for Elasticsearch ALB"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    from_port   = 9200
+    to_port     = 9200
+    protocol    = "tcp"
+    #security_groups = [aws_security_group.elasticsearch.id]
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow HTTP traffic"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.project_name}-${var.environment}-es-alb-sg",
+    Grupo="g2"
+  }
+}
+
+
