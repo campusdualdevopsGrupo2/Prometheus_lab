@@ -4,7 +4,7 @@ scripts/archivo_descargado
 *.tfstate*
 update_keys.py
 .env
-requirements.txt
+#requirements.txt
 .terragrunt-cache
 aws
 node_modules/
