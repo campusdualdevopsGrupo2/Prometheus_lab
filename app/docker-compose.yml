@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  myapp:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - ENV=production
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317  # Aquí configuramos la variable de entorno
+    restart: always
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    ports:
+      - "4317:4317"
+    restart: always
