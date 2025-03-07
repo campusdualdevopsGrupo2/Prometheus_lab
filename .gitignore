@@ -16,4 +16,4 @@ my-ec2-key
 *.json
 *.xml
 *xq*
-
+*pycache*
