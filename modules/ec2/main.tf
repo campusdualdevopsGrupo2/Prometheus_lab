@@ -82,7 +82,7 @@ resource "null_resource" "generate_seed_file_json" {
     always_run = "${timestamp()}"
   }
 
-  depends_on = [aws_instance.elasticsearch_nodes]
+  depends_on = [aws_instance.ec2_node]
 }
 
 
@@ -114,7 +114,7 @@ resource "null_resource" "update_hosts_ini2" {
 
   depends_on = [
     null_resource.update_hosts_ini1,
-    aws_instance.elasticsearch_nodes
+    aws_instance.ec2_node
   ]
 }
 
@@ -139,7 +139,7 @@ resource "null_resource" "provisioner2" {
   }
   #Usar triggers para forzar la ejecución del recurso
   triggers = {
-    always_run = join(",", aws_instance.elasticsearch_nodes[*].id) 
+    always_run = join(",", aws_instance.ec2_node[*].id) 
   }
   
   depends_on = [null_resource.provisioner1]
