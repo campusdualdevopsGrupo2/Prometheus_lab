@@ -27,6 +27,7 @@ services:
       - "9090:9090"
     volumes:
       - "/mnt/efs/prometheus:/prometheus"  # Volumen en EFS para datos de Prometheus
+     
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.prometheus.entrypoints=websecure"
