@@ -12,12 +12,23 @@
         src: ./config/prometheus.yml # Carpeta en tu máquina
         dest: /mnt/efs/prometheus/config/prometheus.yml           # Carpeta en el servidor
         mode: "0644"
+    - name: Copy Requirements
+      copy:
+        src:  ../../../app/requirements.txt
+        dest: /home/ubuntu/requirements.txt
+        mode: '0644'
+
+    - name: Copy src
+      copy:
+        src:  ../../../app/src/
+        dest: /home/ubuntu/src/
+        mode: '0644'
 
     # Tarea 1: Copia el Dockerfile al host
     - name: Copy Dockerfile
       copy:
-        src: ./Dockerfile
-        dest: /home/ubuntu/Dockerfile
+        src: ./Dockerfile.prometheus
+        dest: /home/ubuntu/Dockerfile.prometheus
         mode: '0644'
 
     # Tarea 2: Obtiene la IP privada del host actual
@@ -27,8 +38,8 @@
 
     # Tarea 3: Genera el archivo docker-compose.yml a partir de la plantilla
     - name: Generate docker-compose.yml from template
-      template:
-        src: ./docker-compose.yml.j2     # Ruta de la plantilla
+      copy:
+        src: ./docker-compose.yml    # Ruta de la plantilla
         dest: /home/ubuntu/docker-compose.yml    # Ruta de destino
         mode: '0644'
 
