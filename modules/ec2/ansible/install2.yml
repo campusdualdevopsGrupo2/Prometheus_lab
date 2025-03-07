@@ -6,7 +6,6 @@
     json_ip_name: /home/ubuntu/seed_hosts.json
 
   tasks:
-
     # Tarea 1: Copia el Dockerfile al host
     - name: Copy Dockerfile
       copy:
@@ -14,63 +13,25 @@
         dest: /home/ubuntu/Dockerfile
         mode: '0644'
 
-    # Tarea 2: Asegura que seed_hosts.json se encuentre en /home/ubuntu
-    - name: Asegurar que seed_hosts.json se encuentra en /home/ubuntu
-      copy:
-        src: ./seed_hosts.json
-        dest: /home/ubuntu/seed_hosts.json
-        mode: '0644'
-
-    # Tarea 3: Obtiene la IP privada del host actual
+    # Tarea 2: Obtiene la IP privada del host actual
     - name: Get private IP of the current host
       set_fact:
         PRIVATE_IP: "{{ ansible_default_ipv4.address }}"
 
-    # Tarea 4: Recupera el contenido de seed_hosts.json mediante slurp (se obtiene en base64)
-    - name: Slurp seed_hosts.json file to fetch its content
-      slurp:
-        src: "{{ json_ip_name }}"
-      register: seed_json
-
-    # Tarea 5: Parsea el contenido JSON decodificado de seed_hosts.json
-    - name: Parse JSON content from seed_hosts.json
-      set_fact:
-        seed_hosts_list: "{{ seed_json.content | b64decode | from_json }}"
-
-    # Tarea 6: Define NODE_NAME usando la IP privada actual, buscando en seed_hosts_list
-    - name: Set NODE_NAME based on PRIVATE_IP from seed_hosts.json
-      set_fact:
-        NODE_NAME: "{{ seed_hosts_list | selectattr('ip', 'equalto', PRIVATE_IP) | map(attribute='name') | first }}"
-
-    # Tarea 7: Define NODES_CLUSTER_MASTER a partir de los nombres extraídos de seed_hosts.json
-    - name: Set NODES_CLUSTER_MASTER using names from seed_hosts.json
-      set_fact:
-        NODES_CLUSTER_MASTER: "{{ seed_hosts_list | map(attribute='name') | join(',') }}"
-
-    # Tarea 8: Define SEED_HOSTS excluyendo la IP privada actual, extrayendo las IPs de seed_hosts.json
-    - name: Set SEED_HOSTS variable by excluding the private IP using reject from JSON
-      set_fact:
-        SEED_HOSTS: "{{ seed_hosts_list | map(attribute='ip') | reject('equalto', PRIVATE_IP) | join(',') }}"
-
-    # Tarea 9: Muestra el valor de SEED_HOSTS para depuración
-    - name: Debug SEED_HOSTS value
-      debug:
-        msg: "SEED_HOSTS: {{ SEED_HOSTS }}"
-
-    # Tarea 10: Genera el archivo docker-compose.yml a partir de la plantilla
+    # Tarea 3: Genera el archivo docker-compose.yml a partir de la plantilla
     - name: Generate docker-compose.yml from template
       template:
         src: ./docker-compose.yml.j2     # Ruta de la plantilla
         dest: /home/ubuntu/docker-compose.yml    # Ruta de destino
         mode: '0644'
 
-    # Tarea 11: Detiene Elasticsearch usando Docker Compose
+    # Tarea 4: Detiene Elasticsearch usando Docker Compose
     - name: Start Elasticsearch with Docker Compose
       command: docker compose down
       args:
         chdir: /home/ubuntu
 
-    # Tarea 12: Inicia Elasticsearch en segundo plano utilizando Docker Compose
+    # Tarea 5: Inicia Elasticsearch en segundo plano utilizando Docker Compose
     - name: Start Elasticsearch with Docker Compose
       command: docker compose up -d
       args:

@@ -21,16 +21,19 @@ services:
     restart: always
 
   prometheus:
-    image: prom/prometheus
+    command: ["sh", "-c", "sudo chown -R 1000:1000 /prometheus && mkdir -p /prometheus/data && exec prometheus --config.file=/prometheus/config/prometheus.yml --storage.tsdb.path=/prometheus/data"]
+    build: .
     ports:
       - "9090:9090"
     volumes:
       - "/mnt/efs/prometheus:/prometheus"  # Volumen en EFS para datos de Prometheus
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.prometheus.rule=Host(`{{ instance_tag }}.campusdual.mkcampus.com`)"
       - "traefik.http.routers.prometheus.entrypoints=websecure"
     restart: always
+
+
+
 
 
 

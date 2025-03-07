@@ -8,7 +8,7 @@ variable "aws_region" {
 variable "project_name" {
   type        = string
   description = "Nombre del proyecto"
-  default     = "job-crawler"
+  default     = "Prometheus"
   #default     = "simple-worker-g2"
 }
 

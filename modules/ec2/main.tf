@@ -1,5 +1,5 @@
 resource "aws_key_pair" "key" {
-  key_name   = "my-key-name-finales"
+  key_name   = "prometheus-key-g2"
   public_key = file(var.public_key_path)  # Ruta de tu clave pública en tu máquina local
 }
 data "aws_security_group" "default" {
