@@ -15,7 +15,7 @@
     - name: Copy Requirements
       copy:
         src:  ../../../app/requirements.txt
-        dest: /home/ubuntu/requirements.txt
+        dest: /home/ubuntu/src/requirements.txt
         mode: '0644'
 
     - name: Copy src
@@ -27,8 +27,8 @@
     # Tarea 1: Copia el Dockerfile al host
     - name: Copy Dockerfile
       copy:
-        src: ./Dockerfile.prometheus
-        dest: /home/ubuntu/Dockerfile.prometheus
+        src: ./Dockerfile
+        dest: /home/ubuntu/Dockerfile
         mode: '0644'
 
     # Tarea 2: Obtiene la IP privada del host actual
