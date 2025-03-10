@@ -67,8 +67,6 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:4317"]
       interval: 10s
       retries: 5
-
-
     restart: always
 
 
