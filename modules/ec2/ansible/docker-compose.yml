@@ -54,8 +54,11 @@ services:
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config", "/otel/conf/otel-collector-config.yml"]
     ports:
       - "4317:4317"
+      - "8889:8889"
+      - "13133:13133"
     labels:
       - "traefik.enable=true"
     volumes:
