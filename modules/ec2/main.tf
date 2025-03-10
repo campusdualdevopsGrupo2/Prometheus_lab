@@ -54,7 +54,7 @@ resource "aws_instance" "ec2_node" {
 
       # Permisos a las carpetas donde se monta la unidad efs
       "sudo chown -R 1000:1000 /mnt/efs/",
-      "sudo chmod -R 777 /mnt/efs/"
+      
      
     ]
     connection {

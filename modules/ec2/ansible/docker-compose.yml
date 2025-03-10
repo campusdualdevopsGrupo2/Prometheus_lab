@@ -22,7 +22,7 @@ services:
 
   prometheus:
     command: ["sh", "-c", "sudo chown -R 1000:1000 /prometheus && mkdir -p /prometheus/data && exec prometheus --config.file=/prometheus/config/prometheus.yml --storage.tsdb.path=/prometheus/data"]
-    build: ./Dockerfile.prometheus
+    build: .
     ports:
       - "9090:9090"
     volumes:
@@ -32,14 +32,13 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.prometheus.entrypoints=websecure"
     depends_on:
-      otel-collector:
-        condition: service_healthy
+      - otel-collector
     restart: always
 
   myapp:
     image: python:3.10.12
-    command: ["bash", "-c", "pip install --no-cache-dir -r requirements.txt && chmod +x ./src/main.py" ]
-    entrypoint: ["python", "./src/main.py"]
+    working_dir: /mnt/efs/app
+    command: ["/bin/bash", "-c", "pip install --no-cache-dir -r ./requirements.txt && chmod +x ./main.py && python ./main.py"]
     ports:
       - "8000:8000"
     volumes:
@@ -50,26 +49,20 @@ services:
     labels:
       - "traefik.enable=true"
     depends_on:
-      otel-collector:
-        condition: service_healthy  #
+      - otel-collector
     restart: always
 
   otel-collector:
-    build: ./Dockerfile.otel
-    image: 
+    image: otel/opentelemetry-collector-contrib:latest
     ports:
       - "4317:4317"
     labels:
       - "traefik.enable=true"
     volumes:
       - "/mnt/efs/otel:/otel"
-    healthcheck:   # 🔹 Healthcheck para asegurarse de que esté listo antes de que lo usen otros
-      test: ["CMD", "curl", "-f", "http://localhost:4317"]
-      interval: 10s
-      retries: 5
-
-
     restart: always
+
+
 
 
 
