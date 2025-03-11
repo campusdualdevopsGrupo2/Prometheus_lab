@@ -25,6 +25,7 @@ opentelemetry-proto==1.15.0
 opentelemetry-sdk==1.30.0
 opentelemetry-semantic-conventions==0.51b0
 opentelemetry-util-http==0.51b0
+opentelemetry-exporter-prometheus==0.51b0
 packaging==24.2
 protobuf==4.25.6
 repoze.lru==0.7
