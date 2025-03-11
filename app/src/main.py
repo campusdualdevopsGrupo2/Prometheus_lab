@@ -34,6 +34,11 @@ error_counter = meter.create_counter(
     unit="1"
 )
 
+# Agregar ruta para la URL raíz
+@app.route('/')
+def home():
+    return jsonify({"message": "¡Bienvenido a la aplicación web de ejemplo!"})
+
 # Registrar rutas
 register_routes(app, tracer)
 
