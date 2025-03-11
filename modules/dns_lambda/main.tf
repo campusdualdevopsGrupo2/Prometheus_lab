@@ -1,15 +1,4 @@
-# provider.tf - Configuración del proveedor AWS
-provider "aws" {
-  region  = var.aws_region
-  profile= "superuser"
-}
 
-# Variable de entorno para la región y credenciales
-variable "aws_region" {
-  type        = string
-  description = "AWS region"
-  default= "eu-west-3"
-}
 
 # Crear el rol IAM para Lambda (con política de confianza)
 resource "aws_iam_role" "lambda_execution_role" {

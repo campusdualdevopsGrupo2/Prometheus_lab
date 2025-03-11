@@ -30,7 +30,7 @@ def lambda_handler(event, context):
 
         # Buscar el valor del tag DNS_NAME
         dns_name = next((tag['Value'] for tag in tags if tag['Key'] == 'DNS_NAME'), None)
-        g2_tag = next((tag['Value'] for tag in tags if tag['Key'] == 'g2'), None)
+        g2_tag = next((tag['Value'] for tag in tags if tag['Key'] == 'Grupo' and 'g2' in tag['Value']), None)
         
         if dns_name and g2_tag:
             logger.info(f"Tag 'DNS_NAME' encontrado: {dns_name}")

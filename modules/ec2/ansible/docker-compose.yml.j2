@@ -33,7 +33,7 @@ services:
      
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.prometheus.rule=Host(`prometheus.{{ server_ip }}`)"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.{{ server_ip }}.campusdual.mkcampus.com`)"
       - "traefik.http.routers.prometheus.entrypoints=web,websecure"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
     depends_on:

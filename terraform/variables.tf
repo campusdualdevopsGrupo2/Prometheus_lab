@@ -4,6 +4,11 @@ variable "aws_region" {
   #default     = "eu-west-2"
 }
 
+variable "dns_name" {
+  type        = string
+   
+}
+
 
 variable "project_name" {
   type        = string
