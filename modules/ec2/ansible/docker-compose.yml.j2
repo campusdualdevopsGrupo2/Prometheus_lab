@@ -71,10 +71,14 @@ services:
       - "/mnt/efs/otel:/otel"
     restart: always
 
-
-
-
-
-
-
-
+  nagios:
+    image: jasonrivers/nagioscore:latest
+    container_name: nagios
+    ports:
+      - "8081:80" 
+    volumes:
+      - "/mnt/efs/nagios:/usr/local/nagios/etc" 
+    environment:
+      - NAGIOS_USER=nagiosadmin
+      - NAGIOS_PASS=nagiosadmin
+    restart: always

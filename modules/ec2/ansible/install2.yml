@@ -2,60 +2,68 @@
   hosts: all
   become: yes
   tasks:
-  
-    - name: Copiar carpeta completa de forma recursiva otel
-      ansible.builtin.copy:
-        src: ./config/otel-collector-config.yml # Carpeta en tu máquina
-        dest: /mnt/efs/otel/conf/otel-collector-config.yml           # Carpeta en el servidor
-        mode: "0644"
 
-    - name: Copiar carpeta completa de forma recursiva protometheus
-      ansible.builtin.copy:
-        src: ./config/prometheus.yml # Carpeta en tu máquina
-        dest: /mnt/efs/prometheus/config/prometheus.yml           # Carpeta en el servidor
-        mode: "0644"
+  - name: Copiar carpeta completa de forma recursiva otel
+    ansible.builtin.copy:
+      src: ./config/otel-collector-config.yml # Carpeta en tu máquina
+      dest: /mnt/efs/otel/conf/otel-collector-config.yml # Carpeta en el servidor
+      mode: "0644"
 
-    - name: Copiar carpeta completa de forma recursiva prtometheus
-      ansible.builtin.copy:
-        src: ./config/web.yml # Carpeta en tu máquina
-        dest: /mnt/efs/prometheus/config/web.yml           # Carpeta en el servidor
-        mode: "0644"
+  - name: Copiar carpeta completa de forma recursiva protometheus
+    ansible.builtin.copy:
+      src: ./config/prometheus.yml # Carpeta en tu máquina
+      dest: /mnt/efs/prometheus/config/prometheus.yml # Carpeta en el servidor
+      mode: "0644"
 
-    - name: Copy Requirements
-      copy:
-        src:  ../../../app/requirements.txt
-        dest: /home/ubuntu/src/requirements.txt
-        mode: '0644'
+  - name: Copiar carpeta completa de forma recursiva prtometheus
+    ansible.builtin.copy:
+      src: ./config/web.yml # Carpeta en tu máquina
+      dest: /mnt/efs/prometheus/config/web.yml # Carpeta en el servidor
+      mode: "0644"
 
-    - name: Copy src
-      copy:
-        src:  ../../../app/src/
-        dest: /home/ubuntu/src/
-        mode: '0644'
+  - name: Copy Requirements
+    copy:
+      src: ../../../app/requirements.txt
+      dest: /home/ubuntu/src/requirements.txt
+      mode: '0644'
 
-    # Tarea 1: Copia el Dockerfile al host
-    - name: Copy Dockerfile
-      copy:
-        src: ./Dockerfile
-        dest: /home/ubuntu/Dockerfile
-        mode: '0644'
+  - name: Copy src
+    copy:
+      src: ../../../app/src/
+      dest: /home/ubuntu/src/
+      mode: '0644'
 
+  - name: Deploy Nagios Configuration
+    copy:
+      src: "nagios_config/{{ item }}"
+      dest: "/mnt/efs/nagios:/usr/local/nagios/etc/{{ item }}"
+      group: nagios
+      mode: '0644'
+    with_fileglob:
+    - "nagios_config/*.cfg"
 
-    # Tarea 3: Genera el archivo docker-compose.yml a partir de la plantilla
-    - name: Generate docker-compose.yml from template
-      template:
-        src: ./docker-compose.yml.j2    # Ruta de la plantilla
-        dest: /home/ubuntu/docker-compose.yml    # Ruta de destino
-        mode: '0644'
+  # Tarea 1: Copia el Dockerfile al host
+  - name: Copy Dockerfile
+    copy:
+      src: ./Dockerfile
+      dest: /home/ubuntu/Dockerfile
+      mode: '0644'
 
-    # Tarea 4: Detiene los contenedores usando Docker Compose
-    - name: Start Elasticsearch with Docker Compose
-      command: docker compose down
-      args:
-        chdir: /home/ubuntu
+  # Tarea 3: Genera el archivo docker-compose.yml a partir de la plantilla
+  - name: Generate docker-compose.yml from template
+    template:
+      src: ./docker-compose.yml.j2 # Ruta de la plantilla
+      dest: /home/ubuntu/docker-compose.yml # Ruta de destino
+      mode: '0644'
 
-    # Tarea 5: Inicia los contenedores en segundo plano utilizando Docker Compose
-    - name: Start Elasticsearch with Docker Compose
-      command: docker compose up -d
-      args:
-        chdir: /home/ubuntu
+  # Tarea 4: Detiene los contenedores usando Docker Compose
+  - name: Start Elasticsearch with Docker Compose
+    command: docker compose down
+    args:
+      chdir: /home/ubuntu
+
+  # Tarea 5: Inicia los contenedores en segundo plano utilizando Docker Compose
+  - name: Start Elasticsearch with Docker Compose
+    command: docker compose up -d
+    args:
+      chdir: /home/ubuntu
