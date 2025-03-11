@@ -48,6 +48,8 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317  # Aquí configuramos la variable de entorno
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.myapp.entrypoints=web,websecure"
+      - "traefik.http.services.myapp.loadbalancer.server.port=8000"
     depends_on:
       - otel-collector
     restart: always
