@@ -7,7 +7,13 @@
 
   tasks:
   
-    - name: Copiar carpeta completa de forma recursiva
+    - name: Copiar carpeta completa de forma recursiva otel
+      ansible.builtin.copy:
+        src: ./config/otel-collector-config.yml # Carpeta en tu máquina
+        dest: /mnt/efs/otel/conf/otel-collector-config.yml           # Carpeta en el servidor
+        mode: "0644"
+
+    - name: Copiar carpeta completa de forma recursiva prtometheus
       ansible.builtin.copy:
         src: ./config/prometheus.yml # Carpeta en tu máquina
         dest: /mnt/efs/prometheus/config/prometheus.yml           # Carpeta en el servidor
