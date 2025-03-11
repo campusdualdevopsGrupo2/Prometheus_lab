@@ -15,11 +15,10 @@ data "aws_security_group" "default" {
 }
 
 resource "aws_instance" "ec2_node" {
-  count           = 1  # Número de instancias EC2 que deseas lanzar
   #ami             = "ami-091f18e98bc129c4e" # Ubuntu 24 ami londres
   ami             = var.ami_id
   instance_type   = "t3.xlarge"
-  subnet_id       = var.subnet_ids[(count.index % 3)]
+  subnet_id       = var.subnet_ids
   key_name        = aws_key_pair.key.key_name
   disable_api_stop = false
   
@@ -33,7 +32,7 @@ resource "aws_instance" "ec2_node" {
   }
 
   tags = {
-    Name = "Grupo2-prometheus-instance-${var.project_name}-${var.environment}-es-${count.index + 1}",
+    Name = "Grupo2-prometheus-instance-${var.project_name}-${var.environment}-es-1",
     Grupo="g2"
   }
 
@@ -101,7 +100,7 @@ resource "null_resource" "update_hosts_ini2" {
 resource "null_resource" "provisioner1" {
   provisioner "local-exec" {
 
-    command = "export ANSIBLE_CONFIG=../modules/ec2/ansible/ansible.cfg && ansible-playbook -i ../modules/ec2/ansible/hosts.ini ../modules/ec2/ansible/install.yml"
+    command = "export ANSIBLE_CONFIG=../modules/ec2/ansible/ansible.cfg && ansible-playbook -i ../modules/ec2/ansible/hosts.ini  ../modules/ec2/ansible/install.yml"
   }
   #Usar triggers para forzar la ejecución del recurso
   triggers = {
@@ -114,7 +113,7 @@ resource "null_resource" "provisioner1" {
 resource "null_resource" "provisioner2" {
   provisioner "local-exec" {
 
-    command = "export ANSIBLE_CONFIG=../modules/ec2/ansible/ansible.cfg && ansible-playbook -i ../modules/ec2/ansible/hosts.ini ../modules/ec2/ansible/install2.yml"
+    command = "export ANSIBLE_CONFIG=../modules/ec2/ansible/ansible.cfg && ansible-playbook -i ../modules/ec2/ansible/hosts.ini -e server_ip=${aws_instance.ec2_node.public_ip} ../modules/ec2/ansible/install2.yml"
   }
   #Usar triggers para forzar la ejecución del recurso
   triggers = {

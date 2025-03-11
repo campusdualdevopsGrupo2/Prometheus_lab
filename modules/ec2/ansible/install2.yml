@@ -1,10 +1,6 @@
 - name: Configure Elasticsearch Nodes
   hosts: all
   become: yes
-  vars:
-    docker_compose_file: /home/ubuntu/docker-compose.yml.j2   # Ruta de destino para el archivo docker-compose.yml
-    json_ip_name: /home/ubuntu/seed_hosts.json
-
   tasks:
   
     - name: Copiar carpeta completa de forma recursiva otel
@@ -13,11 +9,18 @@
         dest: /mnt/efs/otel/conf/otel-collector-config.yml           # Carpeta en el servidor
         mode: "0644"
 
-    - name: Copiar carpeta completa de forma recursiva prtometheus
+    - name: Copiar carpeta completa de forma recursiva protometheus
       ansible.builtin.copy:
         src: ./config/prometheus.yml # Carpeta en tu máquina
         dest: /mnt/efs/prometheus/config/prometheus.yml           # Carpeta en el servidor
         mode: "0644"
+
+    - name: Copiar carpeta completa de forma recursiva prtometheus
+      ansible.builtin.copy:
+        src: ./config/web.yml # Carpeta en tu máquina
+        dest: /mnt/efs/prometheus/config/web.yml           # Carpeta en el servidor
+        mode: "0644"
+
     - name: Copy Requirements
       copy:
         src:  ../../../app/requirements.txt
@@ -37,25 +40,21 @@
         dest: /home/ubuntu/Dockerfile
         mode: '0644'
 
-    # Tarea 2: Obtiene la IP privada del host actual
-    - name: Get private IP of the current host
-      set_fact:
-        PRIVATE_IP: "{{ ansible_default_ipv4.address }}"
 
     # Tarea 3: Genera el archivo docker-compose.yml a partir de la plantilla
     - name: Generate docker-compose.yml from template
-      copy:
-        src: ./docker-compose.yml    # Ruta de la plantilla
+      template:
+        src: ./docker-compose.yml.j2    # Ruta de la plantilla
         dest: /home/ubuntu/docker-compose.yml    # Ruta de destino
         mode: '0644'
 
-    # Tarea 4: Detiene Elasticsearch usando Docker Compose
+    # Tarea 4: Detiene los contenedores usando Docker Compose
     - name: Start Elasticsearch with Docker Compose
       command: docker compose down
       args:
         chdir: /home/ubuntu
 
-    # Tarea 5: Inicia Elasticsearch en segundo plano utilizando Docker Compose
+    # Tarea 5: Inicia los contenedores en segundo plano utilizando Docker Compose
     - name: Start Elasticsearch with Docker Compose
       command: docker compose up -d
       args:

@@ -21,7 +21,7 @@ services:
     restart: always
 
   prometheus:
-    command: ["sh", "-c", "sudo chown -R 1000:1000 /prometheus && mkdir -p /prometheus/data && exec prometheus --config.file=/prometheus/config/prometheus.yml --storage.tsdb.path=/prometheus/data"]
+    command: ["sh", "-c", "sudo chown -R 1000:1000 /prometheus && mkdir -p /prometheus/data && exec prometheus --config.file=/prometheus/config/prometheus.yml --storage.tsdb.path=/prometheus/data --web.config.file=/prometheus/config/web.yml"]
     build: .
     ports:
       - "9090:9090"
@@ -30,6 +30,7 @@ services:
      
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.myapp.rule=Host(`prometheus.{{ server_ip }}`)"
       - "traefik.http.routers.prometheus.entrypoints=websecure"
     depends_on:
       - otel-collector
@@ -48,6 +49,7 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317  # Aquí configuramos la variable de entorno
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.myapp.rule=Host(`myapp.{{ server_ip }}`)"
       - "traefik.http.routers.myapp.entrypoints=web,websecure"
       - "traefik.http.services.myapp.loadbalancer.server.port=8000"
     depends_on:
@@ -62,6 +64,8 @@ services:
       - "8889:8889"
       - "13133:13133"
     labels:
+      - "traefik.http.routers.myapp.rule=Host(`myapp.{{ server_ip }}`)"
+      - "traefik.http.routers.prometheus.entrypoints=websecure"
       - "traefik.enable=true"
     volumes:
       - "/mnt/efs/otel:/otel"
