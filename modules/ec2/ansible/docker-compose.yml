@@ -39,6 +39,7 @@ services:
     image: python:3.10.12
     working_dir: /mnt/efs/app
     command: ["/bin/bash", "-c", "pip install --no-cache-dir -r ./requirements.txt && chmod +x ./main.py && python ./main.py"]
+    ports:
       - "8000:8000"
     volumes:
       - "/home/ubuntu/src:/mnt/efs/app"
@@ -59,6 +60,7 @@ services:
       - "traefik.enable=true"
     volumes:
       - "/mnt/efs/otel:/otel"
+<<<<<<< HEAD
     healthcheck:   # 🔹 Healthcheck para asegurarse de que esté listo antes de que lo usen otros
       test: ["CMD", "curl", "-f", "http://localhost:4317"]
       interval: 10s
