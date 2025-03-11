@@ -17,6 +17,9 @@ from opentelemetry.sdk.metrics.export import (
 )
 from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
+#Añadido para exportar métricas en formato Prometheus
+from opentelemetry.exporter.prometheus import PrometheusMetricReader
+from prometheus_client import start_http_server
 
 # Se agregó la instancia de Flask
 app = Flask(__name__)
@@ -30,6 +33,7 @@ def setup_telemetry(service_name):
         
     Returns:
         tracer: El trazador configurado
+        meter: El medidor configurado
     """
     # Obtener el endpoint del exportador OTLP desde las variables de entorno
     otlp_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317")
@@ -63,6 +67,9 @@ def setup_telemetry(service_name):
     
     # Establecer el proveedor de métricas global
     metrics.set_meter_provider(meter_provider)
+
+    ## Crear un medidor para el servicio
+    meter = metrics.get_meter(service_name)  # Asegúrate de obtener el medidor aquí
     
     # Instrumentar automáticamente las librerías comunes
     RequestsInstrumentor().instrument()
@@ -75,4 +82,4 @@ def setup_telemetry(service_name):
         tracer_provider=tracer_provider,
     )
     
-    return tracer
+    return tracer, meter
