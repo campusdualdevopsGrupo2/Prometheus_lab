@@ -11,13 +11,6 @@ resource "aws_security_group" "prometheus" {
     cidr_blocks = ["0.0.0.0/0"]
     description = "Elasticsearch REST API"
   }
-    ingress {
-    from_port   = 8000
-    to_port     = 8000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Elasticsearch REST API"
-  }
   /*
   ingress {
     from_port   = 4317
