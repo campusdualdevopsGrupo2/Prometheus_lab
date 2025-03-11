@@ -57,6 +57,14 @@ resource "aws_security_group" "prometheus" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   
+      ingress {
+    from_port   = 8081
+    to_port     = 8081
+    protocol    = "tcp"
+    description = "Allow NFS traffic from EC2 instances"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   # Ingress para NFS (puerto 2049) desde EC2
   ingress {
     from_port   = 2049

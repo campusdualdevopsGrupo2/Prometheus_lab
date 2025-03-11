@@ -6,10 +6,10 @@ services:
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=tuemail@ejemplo.com"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-      - "chmod 600 /letsencrypt/acme.json"
+ #     - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+ #     - "--certificatesresolvers.myresolver.acme.email=tuemail@ejemplo.com"
+ #     - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+ #     - "chmod 600 /letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
@@ -79,18 +79,18 @@ services:
       - "/mnt/efs/otel:/otel"
     restart: always
 
-  #nagios:
-  #  image: jasonrivers/nagios:latest
-  #  command: ["/bin/bash", "-c", "htpasswd -cb /usr/local/nagios/etc/htpasswd.users nagiosadmin campusdual"]
-  #  container_name: nagios
-  #  ports:
-  #    - "8081:8081" 
-  #  labels:
-  #   - "traefik.enable=true"
-  #    - "traefik.http.routers.nagios.tls.certresolver=myresolver"
-  #    - "traefik.http.routers.nagios.rule=Host(`nagios.{{ server_ip }}.campusdual.mkcampus.com``)"
-  #    - "traefik.http.routers.nagios.entrypoints=web,websecure"
-  #    - "traefik.http.services.nagios.loadbalancer.server.port=8081"
-  #  volumes:
-  #    - "/mnt/efs/nagios:/nagios" 
-  #  restart: always
+  nagios:
+    image: jasonrivers/nagios:latest
+    command: ["/bin/bash", "-c", "htpasswd -cb /opt/nagios/etchtpasswd.users nagiosadmin campusdual && exec /usr/local/bin/start_nagios"]
+    container_name: nagios
+    ports:
+      - "8081:8081" 
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nagios.tls.certresolver=myresolver"
+      - "traefik.http.routers.nagios.rule=Host(`nagios.{{ server_ip }}.campusdual.mkcampus.com`)"
+      - "traefik.http.routers.nagios.entrypoints=web,websecure"
+      - "traefik.http.services.nagios.loadbalancer.server.port=8081"
+    volumes:
+      - "/mnt/efs/nagios:/nagios" 
+    restart: always
