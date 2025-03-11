@@ -9,6 +9,7 @@ services:
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=tuemail@ejemplo.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "chmod 600 /letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
@@ -22,7 +23,9 @@ services:
 
   prometheus:
     command: ["sh", "-c", "sudo chown -R 1000:1000 /prometheus && mkdir -p /prometheus/data && exec prometheus --config.file=/prometheus/config/prometheus.yml --storage.tsdb.path=/prometheus/data --web.config.file=/prometheus/config/web.yml"]
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.prometheus
     ports:
       - "9090:9090"
     volumes:
@@ -31,7 +34,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.prometheus.rule=Host(`prometheus.{{ server_ip }}`)"
-      - "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.routers.prometheus.entrypoints=web,websecure"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
     depends_on:
       - otel-collector
     restart: always
@@ -64,9 +68,10 @@ services:
       - "8889:8889"
       - "13133:13133"
     labels:
-      - "traefik.http.routers.otel.rule=Host(`otel.{{ server_ip }}`)"
-      - "traefik.http.routers.otel.entrypoints=websecure"
       - "traefik.enable=true"
+      - "traefik.http.routers.otel.rule=Host(`otel.{{ server_ip }}`)"
+      - "traefik.http.routers.otel.entrypoints=web,websecure"
+      - "traefik.http.services.otel.loadbalancer.server.port=8889"
     volumes:
       - "/mnt/efs/otel:/otel"
     restart: always

@@ -21,33 +21,24 @@
       dest: /mnt/efs/prometheus/config/web.yml # Carpeta en el servidor
       mode: "0644"
 
-  - name: Copy Requirements
-    copy:
-      src: ../../../app/requirements.txt
-      dest: /home/ubuntu/src/requirements.txt
-      mode: '0644'
+    - name: Copy src
+      copy:
+        src:  ../../../app/src/
+        dest: /home/ubuntu/src/
+        mode: '0644'
 
-  - name: Copy src
-    copy:
-      src: ../../../app/src/
-      dest: /home/ubuntu/src/
-      mode: '0644'
+    - name: Copy Requirements
+      copy:
+        src:  ../../../app/requirements.txt
+        dest: /home/ubuntu/src/requirements.txt
+        mode: '0644'
 
-  - name: Deploy Nagios Configuration
-    copy:
-      src: "nagios_config/{{ item }}"
-      dest: "/mnt/efs/nagios:/usr/local/nagios/etc/{{ item }}"
-      group: nagios
-      mode: '0644'
-    with_fileglob:
-    - "nagios_config/*.cfg"
-
-  # Tarea 1: Copia el Dockerfile al host
-  - name: Copy Dockerfile
-    copy:
-      src: ./Dockerfile
-      dest: /home/ubuntu/Dockerfile
-      mode: '0644'
+    # Tarea 1: Copia el Dockerfile al host
+    - name: Copy Dockerfile
+      copy:
+        src: ./Dockerfile.prometheus
+        dest: /home/ubuntu/Dockerfile.prometheus
+        mode: '0644'
 
   # Tarea 3: Genera el archivo docker-compose.yml a partir de la plantilla
   - name: Generate docker-compose.yml from template
