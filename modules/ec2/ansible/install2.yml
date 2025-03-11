@@ -1,60 +1,66 @@
-- name: Configure Elasticsearch Nodes
+- name: Configure EC2 Node
   hosts: all
   become: yes
   tasks:
 
-  - name: Copiar carpeta completa de forma recursiva otel
-    ansible.builtin.copy:
-      src: ./config/otel-collector-config.yml # Carpeta en tu máquina
-      dest: /mnt/efs/otel/conf/otel-collector-config.yml # Carpeta en el servidor
-      mode: "0644"
+# Tarea 1: Copia la configuración de OpenTelemetry al servidor
+- name: Copiar configuración de OpenTelemetry
+  ansible.builtin.copy:
+    src: ./config/otel-collector-config.yml
+    dest: /mnt/efs/otel/conf/otel-collector-config.yml
+    mode: "0644"
 
-  - name: Copiar carpeta completa de forma recursiva protometheus
-    ansible.builtin.copy:
-      src: ./config/prometheus.yml # Carpeta en tu máquina
-      dest: /mnt/efs/prometheus/config/prometheus.yml # Carpeta en el servidor
-      mode: "0644"
+# Tarea 2: Copia la configuración principal de Prometheus al servidor
+- name: Copiar configuración de Prometheus
+  ansible.builtin.copy:
+    src: ./config/prometheus.yml
+    dest: /mnt/efs/prometheus/config/prometheus.yml
+    mode: "0644"
 
-  - name: Copiar carpeta completa de forma recursiva prtometheus
-    ansible.builtin.copy:
-      src: ./config/web.yml # Carpeta en tu máquina
-      dest: /mnt/efs/prometheus/config/web.yml # Carpeta en el servidor
-      mode: "0644"
+# Tarea 3: Copia el archivo de configuración web de Prometheus al servidor
+- name: Copiar configuración web de Prometheus
+  ansible.builtin.copy:
+    src: ./config/web.yml
+    dest: /mnt/efs/prometheus/config/web.yml
+    mode: "0644"
 
-  - name: Copy src
-    copy:
-      src:  ../../../app/src/
-      dest: /home/ubuntu/src/
-      mode: '0644'
+# Tarea 4: Copia el código fuente de la aplicación al servidor
+- name: Copiar código fuente de la aplicación
+  copy:
+    src: ../../../app/src/
+    dest: /home/ubuntu/src/
+    mode: '0644'
 
-  - name: Copy Requirements
-    copy:
-      src:  ../../../app/requirements.txt
-      dest: /home/ubuntu/src/requirements.txt
-      mode: '0644'
+# Tarea 5: Copia el archivo de dependencias (requirements.txt) al servidor
+- name: Copiar archivo de dependencias
+  copy:
+    src: ../../../app/requirements.txt
+    dest: /home/ubuntu/src/requirements.txt
+    mode: '0644'
 
-  # Tarea 1: Copia el Dockerfile al host
-  - name: Copy Dockerfile
-    copy:
-      src: ./Dockerfile.prometheus
-      dest: /home/ubuntu/Dockerfile.prometheus
-      mode: '0644'
+# Tarea 6: Copia el Dockerfile de Prometheus al servidor
+- name: Copy Dockerfile
+  copy:
+    src: ./Dockerfile.prometheus
+    dest: /home/ubuntu/Dockerfile.prometheus
+    mode: '0644'
 
-  # Tarea 3: Genera el archivo docker-compose.yml a partir de la plantilla
-  - name: Generate docker-compose.yml from template
-    template:
-      src: ./docker-compose.yml.j2 # Ruta de la plantilla
-      dest: /home/ubuntu/docker-compose.yml # Ruta de destino
-      mode: '0644'
+# Tarea 7: Genera el archivo docker-compose.yml a partir de una plantilla
+- name: Generate docker-compose.yml from template
+  template:
+    src: ./docker-compose.yml.j2
+    dest: /home/ubuntu/docker-compose.yml
+    mode: '0644'
 
-  # Tarea 4: Detiene los contenedores usando Docker Compose
-  - name: Start Elasticsearch with Docker Compose
-    command: docker compose down
-    args:
-      chdir: /home/ubuntu
+# Tarea 8: Detiene los contenedores en ejecución usando Docker Compose
+- name: Stop running containers with Docker Compose
+  command: docker compose down
+  args:
+    chdir: /home/ubuntu
 
-  # Tarea 5: Inicia los contenedores en segundo plano utilizando Docker Compose
-  - name: Start Elasticsearch with Docker Compose
-    command: docker compose up -d
-    args:
-      chdir: /home/ubuntu
+# Tarea 9: Inicia los contenedores en segundo plano usando Docker Compose
+- name: Start containers with Docker Compose
+  command: docker compose up -d
+  args:
+    chdir: /home/ubuntu
+
