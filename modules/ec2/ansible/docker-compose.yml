@@ -63,13 +63,6 @@ services:
       - "traefik.enable=true"
     volumes:
       - "/mnt/efs/otel:/otel"
-<<<<<<< HEAD
-    healthcheck:   # 🔹 Healthcheck para asegurarse de que esté listo antes de que lo usen otros
-      test: ["CMD", "curl", "-f", "http://localhost:4317"]
-      interval: 10s
-      retries: 5
-=======
->>>>>>> afb2d024c3f069c4cd7b7a023419f36c6732b2f3
     restart: always
 
 
