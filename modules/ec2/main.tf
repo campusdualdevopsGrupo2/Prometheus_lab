@@ -34,6 +34,7 @@ resource "aws_instance" "ec2_node" {
   tags = {
     Name = "Grupo2-prometheus-instance-${var.project_name}-${var.environment}-es-1",
     Grupo="g2"
+    dns_name = var.dns_name
   }
 
 
@@ -113,7 +114,7 @@ resource "null_resource" "provisioner1" {
 resource "null_resource" "provisioner2" {
   provisioner "local-exec" {
 
-    command = "export ANSIBLE_CONFIG=../modules/ec2/ansible/ansible.cfg && ansible-playbook -i ../modules/ec2/ansible/hosts.ini -e server_ip=${aws_instance.ec2_node.public_ip} ../modules/ec2/ansible/install2.yml"
+    command = "export ANSIBLE_CONFIG=../modules/ec2/ansible/ansible.cfg && ansible-playbook -i ../modules/ec2/ansible/hosts.ini -e server_ip=${var.dns_name} ../modules/ec2/ansible/install2.yml"
   }
   #Usar triggers para forzar la ejecución del recurso
   triggers = {

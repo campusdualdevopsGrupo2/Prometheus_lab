@@ -12,6 +12,12 @@ module "ec2" {
   private_key_path=var.private_key_path
   public_key_path=var.public_key_path
   ami_id= var.ami_id
+  dns_name = var.dns_name
   #region=var.region
+  depends_on = [ module.lambda ]
 }
 
+module "lambda" {
+  source = "../modules/dns_lambda"
+
+}
