@@ -55,12 +55,10 @@
   # Añadir archivos de configuracion nagios a la imagen
   - name: Deploy Nagios Configuration
     copy:
-      src: "nagios_config/{{ item }}"
-      dest: "/mnt/efs/nagios:/usr/local/nagios/etc/{{ item }}"
-      group: nagios
+      src: ./nagios_config/
+      dest: /mnt/efs/nagios/nagios_config/
       mode: '0644'
-    with_fileglob:
-    - "nagios_config/*.cfg"
+
 
   # Tarea 8: Detiene los contenedores en ejecución usando Docker Compose
   - name: Stop running containers with Docker Compose
@@ -73,18 +71,3 @@
     command: docker compose up -d
     args:
       chdir: /home/ubuntu
-
-  # Actualizar la contraseña nagios
-  - name: Change Nagios username and password
-    docker_container:
-      name: nagios
-      #Por defecto, el usuario es 'nagiosadmin' y la contraseña es 'nagios', mediante el comando de abajo se puede actualizar la contraseña
-      command: /bin/bash -c "htpasswd -b /usr/local/nagios/etc/htpasswd.users {{ nagios_user }} {{ nagios_pass }}"
-    become: true
-    environment:
-      nagios_user: "nagiosadmin"
-      nagios_pass: "campusdual"
-
-  # Reiniciar nagios para que la contraseña entre en efecto
-  - name: Restart the Nagios
-    command: docker restart nagios

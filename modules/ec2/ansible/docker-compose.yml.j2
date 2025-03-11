@@ -33,6 +33,7 @@ services:
      
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.tls.certresolver=myresolver"
       - "traefik.http.routers.prometheus.rule=Host(`prometheus.{{ server_ip }}.campusdual.mkcampus.com`)"
       - "traefik.http.routers.prometheus.entrypoints=web,websecure"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
@@ -53,7 +54,8 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317  # Aquí configuramos la variable de entorno
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.myapp.rule=Host(`myapp.{{ server_ip }}`)"
+      - "traefik.http.routers.myapp.tls.certresolver=myresolver"
+      - "traefik.http.routers.myapp.rule=Host(`myapp.{{ server_ip }}.campusdual.mkcampus.com`)"
       - "traefik.http.routers.myapp.entrypoints=web,websecure"
       - "traefik.http.services.myapp.loadbalancer.server.port=8000"
     depends_on:
@@ -69,18 +71,26 @@ services:
       - "13133:13133"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.otel.rule=Host(`otel.{{ server_ip }}`)"
+      - "traefik.http.routers.otel.tls.certresolver=myresolver"
+      - "traefik.http.routers.otel.rule=Host(`otel.{{ server_ip }}.campusdual.mkcampus.com`)"
       - "traefik.http.routers.otel.entrypoints=web,websecure"
       - "traefik.http.services.otel.loadbalancer.server.port=8889"
     volumes:
       - "/mnt/efs/otel:/otel"
     restart: always
 
-  nagios:
-    image: jasonrivers/nagioscore:latest
-    container_name: nagios
-    ports:
-      - "8081:80" 
-    volumes:
-      - "/mnt/efs/nagios:/usr/local/nagios/etc" 
-    restart: always
+  #nagios:
+  #  image: jasonrivers/nagios:latest
+  #  command: ["/bin/bash", "-c", "htpasswd -cb /usr/local/nagios/etc/htpasswd.users nagiosadmin campusdual"]
+  #  container_name: nagios
+  #  ports:
+  #    - "8081:8081" 
+  #  labels:
+  #   - "traefik.enable=true"
+  #    - "traefik.http.routers.nagios.tls.certresolver=myresolver"
+  #    - "traefik.http.routers.nagios.rule=Host(`nagios.{{ server_ip }}.campusdual.mkcampus.com``)"
+  #    - "traefik.http.routers.nagios.entrypoints=web,websecure"
+  #    - "traefik.http.services.nagios.loadbalancer.server.port=8081"
+  #  volumes:
+  #    - "/mnt/efs/nagios:/nagios" 
+  #  restart: always

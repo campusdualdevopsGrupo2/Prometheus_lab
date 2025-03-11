@@ -34,7 +34,7 @@ resource "aws_instance" "ec2_node" {
   tags = {
     Name = "Grupo2-prometheus-instance-${var.project_name}-${var.environment}-es-1",
     Grupo="g2"
-    dns_name = var.dns_name
+    DNS_NAME = var.dns_name
   }
 
 
