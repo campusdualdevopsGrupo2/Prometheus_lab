@@ -20,7 +20,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik-dashboard.entrypoints=web,websecure"
-      - "traefik.http.routers.traefik.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathPrefix(`^/(traefik|dashboard)`)"
+      - "traefik.http.routers.traefik.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathRegexp(`^/(traefik|dashboard)`)"
       - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
 
             # Definir un middleware para cambiar el path
