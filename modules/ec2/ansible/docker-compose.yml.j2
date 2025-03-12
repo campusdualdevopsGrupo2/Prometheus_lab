@@ -19,7 +19,12 @@ services:
       - "/mnt/efs/traefik/letsencrypt:/letsencrypt"  # Volumen en EFS para certificados
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.traefik-dashboard.entrypoints=web,websecure"
+      - "traefik.http.routers.traefik.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathPrefix(`/traefik_dashboard`)"
+      - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
     restart: always
+    networks:
+      - my_custom_network
 
   prometheus:
     command: ["sh", "-c", "sudo chown -R 1000:1000 /prometheus && mkdir -p /prometheus/data && exec prometheus --config.file=/prometheus/config/prometheus.yml --storage.tsdb.path=/prometheus/data --web.config.file=/prometheus/config/web.yml"]
@@ -33,13 +38,16 @@ services:
      
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.prometheus.tls.certresolver=myresolver"
-      - "traefik.http.routers.prometheus.rule=Host(`prometheus.{{ server_ip }}.campusdual.mkcampus.com`)"
+      #- "traefik.http.routers.prometheus.tls.certresolver=myresolver"
+      - "traefik.http.routers.prometheus.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathPrefix(`/prometheus`)"
       - "traefik.http.routers.prometheus.entrypoints=web,websecure"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
     depends_on:
-      - otel-collector
+      otel-collector:
+        condition: service_started
     restart: always
+    networks:
+      - my_custom_network
 
   myapp:
     image: python:3.10.12
@@ -54,13 +62,16 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317  # Aquí configuramos la variable de entorno
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.myapp.tls.certresolver=myresolver"
-      - "traefik.http.routers.myapp.rule=Host(`myapp.{{ server_ip }}.campusdual.mkcampus.com`)"
+      #- "traefik.http.routers.myapp.tls.certresolver=myresolver"
+      - "traefik.http.routers.myapp.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathPrefix(`/myapp/`)"
       - "traefik.http.routers.myapp.entrypoints=web,websecure"
       - "traefik.http.services.myapp.loadbalancer.server.port=8000"
     depends_on:
-      - otel-collector
+      otel-collector:
+        condition: service_started
     restart: always
+    networks:
+      - my_custom_network
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
@@ -71,26 +82,46 @@ services:
       - "13133:13133"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.otel.tls.certresolver=myresolver"
-      - "traefik.http.routers.otel.rule=Host(`otel.{{ server_ip }}.campusdual.mkcampus.com`)"
+      #- "traefik.http.routers.otel.tls.certresolver=myresolver"
+      - "traefik.http.routers.otel.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathPrefix(`/otel`)"
       - "traefik.http.routers.otel.entrypoints=web,websecure"
       - "traefik.http.services.otel.loadbalancer.server.port=8889"
     volumes:
       - "/mnt/efs/otel:/otel"
     restart: always
+    networks:
+      - my_custom_network
+
+  
 
   nagios:
     image: jasonrivers/nagios:latest
     command: ["/bin/bash", "-c", "htpasswd -cb /opt/nagios/etchtpasswd.users nagiosadmin campusdual && exec /usr/local/bin/start_nagios"]
     container_name: nagios
     ports:
-      - "8081:8081" 
+      - "8081:8081"
+    environment:
+      - NAGIOS_HOST_IP=172.28.0.10 
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.nagios.tls.certresolver=myresolver"
-      - "traefik.http.routers.nagios.rule=Host(`nagios.{{ server_ip }}.campusdual.mkcampus.com`)"
+      #- "traefik.http.routers.nagios.tls.certresolver=myresolver"
+      - "traefik.http.routers.nagios.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathPrefix(`/nagios`)"
       - "traefik.http.routers.nagios.entrypoints=web,websecure"
       - "traefik.http.services.nagios.loadbalancer.server.port=8081"
     volumes:
       - "/mnt/efs/nagios:/nagios" 
     restart: always
+    networks:
+      my_custom_network:
+        ipv4_address: 172.28.0.10
+
+  
+networks:
+  my_custom_network:
+    driver: bridge
+    ipam:
+      driver: default  # El driver de IPAM por defecto
+      config:
+        - subnet: "172.28.0.0/24"  # Rango de IP para esta red
+          gateway: "172.28.0.1"  # IP del gateway de la red
+

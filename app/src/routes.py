@@ -7,6 +7,8 @@ from flask import jsonify, request
 from opentelemetry import metrics
 from opentelemetry.trace import SpanKind
 
+route_prefix="/myapp"
+
 # Crear medidores personalizados
 meter = metrics.get_meter("example-app")
 request_counter = meter.create_counter(
@@ -29,7 +31,7 @@ def register_routes(app, tracer):
         tracer: El trazador de OpenTelemetry
     """
     
-    @app.route('/')
+    @app.route(route_prefix+'/')
     def home():
         with tracer.start_as_current_span("home_route", kind=SpanKind.SERVER):
             # Incrementar contador de solicitudes
@@ -49,7 +51,7 @@ def register_routes(app, tracer):
                 "status": "OK"
             })
     
-    @app.route('/api/data')
+    @app.route(route_prefix+'/api/data')
     def get_data():
         with tracer.start_as_current_span("get_data_route", kind=SpanKind.SERVER):
             # Incrementar contador de solicitudes
@@ -72,7 +74,7 @@ def register_routes(app, tracer):
             
             return jsonify({"data": data})
     
-    @app.route('/api/slow')
+    @app.route(route_prefix+'/api/slow')
     def slow_endpoint():
         with tracer.start_as_current_span("slow_endpoint_route", kind=SpanKind.SERVER):
             # Incrementar contador de solicitudes
@@ -89,7 +91,7 @@ def register_routes(app, tracer):
             
             return jsonify({"message": "Esta es una respuesta lenta"})
     
-    @app.route('/api/error')
+    @app.route(route_prefix+'/api/error')
     def error_endpoint():
         with tracer.start_as_current_span("error_endpoint_route", kind=SpanKind.SERVER):
             # Incrementar contador de solicitudes
@@ -114,7 +116,7 @@ def register_routes(app, tracer):
             
             return jsonify({"message": "Esta vez no hubo error"})
     
-    @app.route('/health')
+    @app.route(route_prefix+'/health')
     def health_check():
         with tracer.start_as_current_span("health_check_route", kind=SpanKind.SERVER):
             # Incrementar contador de solicitudes

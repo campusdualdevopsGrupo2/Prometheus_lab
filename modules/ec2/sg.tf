@@ -4,20 +4,7 @@ resource "aws_security_group" "prometheus" {
   description = "SG for Elasticsearch"
   vpc_id      = var.vpc_id
 
-  ingress {
-    from_port   = 9090
-    to_port     = 9090
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Elasticsearch REST API"
-  }
-  /*
-  ingress {
-    from_port   = 4317
-    to_port     = 4317
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }*/
+
 
   ingress {
     from_port   = 80
@@ -33,6 +20,21 @@ resource "aws_security_group" "prometheus" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
     description = "Elasticsearch REST API"
+  }
+  /*
+    ingress {
+    from_port   = 9090
+    to_port     = 9090
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Elasticsearch REST API"
+  }
+  
+  ingress {
+    from_port   = 4317
+    to_port     = 4317
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -64,6 +66,13 @@ resource "aws_security_group" "prometheus" {
     description = "Allow NFS traffic from EC2 instances"
     cidr_blocks = ["0.0.0.0/0"]
   }
+    # Elasticsearch internal comunication
+  ingress {
+    from_port   = 9300
+    to_port     = 9300
+    protocol    = "tcp"    
+    self = true
+  }*/
 
   # Ingress para NFS (puerto 2049) desde EC2
   ingress {
@@ -74,13 +83,7 @@ resource "aws_security_group" "prometheus" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Elasticsearch internal comunication
-  ingress {
-    from_port   = 9300
-    to_port     = 9300
-    protocol    = "tcp"    
-    self = true
-  }
+
   ingress {
     from_port   = 22
     to_port     = 22
