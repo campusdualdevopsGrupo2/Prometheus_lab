@@ -44,8 +44,7 @@ services:
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
 
       # Definir un middleware para cambiar el path
-      - "traefik.http.middlewares.prometheus-replacepath.replacepath.regex=^/prom(.*)"
-      - "traefik.http.middlewares.prometheus-replacepath.replacepath.replacement=/$1"
+      - "traefik.http.middlewares.prometheus-replacepath.replacepath.path=/"
 
       # Aplicar el middleware al enrutador de Prometheus
       - "traefik.http.routers.prometheus.middlewares=prometheus-replacepath@docker"
@@ -103,24 +102,40 @@ services:
 
   nagios:
     image: jasonrivers/nagios:latest
-    command: ["/bin/bash", "-c", "htpasswd -cb /opt/nagios/etchtpasswd.users nagiosadmin campusdual && exec /usr/local/bin/start_nagios"]
+    command: ["/bin/bash", "-c", "htpasswd -cb /opt/nagios/etc/htpasswd.users nagiosadmin campusdual && exec /usr/local/bin/start_nagios"]
     container_name: nagios
     ports:
-      - "8081:8081"
+      - "8081:80"
+    #post_start:
+    #  - command: mv /nagios/nagios_config/hosts.cfg /opt/nagios/etc/hosts.cfg && mv /nagios/nagios_config/services.cfg /opt/nagios/etc/services.cfg 
+    #    user: root
     environment:
-      - NAGIOS_HOST_IP=172.28.0.10 
+      - NAGIOS_HOST_IP=172.28.0.10
+      - cfg_file=/nagios/nagios_config/hosts.cfg 
     labels:
       - "traefik.enable=true"
       #- "traefik.http.routers.nagios.tls.certresolver=myresolver"
       - "traefik.http.routers.nagios.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathPrefix(`/nagios`)"
       - "traefik.http.routers.nagios.entrypoints=web,websecure"
       - "traefik.http.services.nagios.loadbalancer.server.port=8081"
+
+            # Definir un middleware para cambiar el path
+      - "traefik.http.middlewares.nagios-replacepath.replacepath.path=/"
+
+      # Aplicar el middleware al enrutador de Prometheus
+      - "traefik.http.routers.nagios.middlewares=nagios-replacepath@docker"
     volumes:
       - "/mnt/efs/nagios:/nagios" 
     restart: always
     networks:
       my_custom_network:
         ipv4_address: 172.28.0.10
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 1g
 
   
 networks:

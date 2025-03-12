@@ -4,7 +4,7 @@ from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Configura las rutas de tu aplicación Flask
-BASE_URL = "http://13.37.225.130:8000"  # Cambia esto si tu aplicación está en otro host/puerto
+BASE_URL = "http://g2-prometheus.campusdual.mkcampus.com/myapp"  # Cambia esto si tu aplicación está en otro host/puerto
 ROUTES = [
     ("/", 0),            # Ruta / inicialmente con 0 peticiones
     ("/api/data", 0),     # Ruta /api/data inicialmente con 0 peticiones
