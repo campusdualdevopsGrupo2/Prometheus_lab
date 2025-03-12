@@ -110,7 +110,7 @@ services:
       #- "traefik.http.routers.nagios.tls.certresolver=myresolver"
       - "traefik.http.routers.nagios.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathRegexp(`^/(nagiosadmin|.*\\.php|nagios|js|styles|images)`)"
       - "traefik.http.routers.nagios.entrypoints=web,websecure"
-      - "traefik.http.services.nagios.loadbalancer.server.port=8081"
+      - "traefik.http.services.nagios.loadbalancer.server.port=80"
 
       # Definir un middleware para cambiar el path
       - "traefik.http.middlewares.nagios-replacepath.stripprefix.prefixes=/nagiosadmin"
