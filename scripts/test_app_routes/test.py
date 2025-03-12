@@ -13,7 +13,7 @@ ROUTES = [
     ("/health", 0)        # Ruta /health inicialmente con 0 peticiones
 ]
 
-TOTAL_REQUESTS = 4000  # Total de peticiones que queremos hacer
+TOTAL_REQUESTS = 4500  # Total de peticiones que queremos hacer
 
 def distribute_requests():
     """Distribuye aleatoriamente las peticiones entre las rutas"""
@@ -45,13 +45,13 @@ def main():
             all_requests.extend([route] * times)
 
     # Realiza las peticiones de forma paralela
-    with ThreadPoolExecutor(max_workers=35) as executor:
+    with ThreadPoolExecutor(max_workers=45) as executor:
         future_to_route = {executor.submit(test_route, route): route for route in all_requests}
         
         # Muestra el progreso de las peticiones
         for future in tqdm(as_completed(future_to_route), total=len(all_requests), desc="Progreso de peticiones"):
             route, status, response = future.result()
-            print(f"Respuesta de {route}: {status} - {response}")
+            #print(f"Respuesta de {route}: {status} - {response}")
 
 if __name__ == "__main__":
     main()
