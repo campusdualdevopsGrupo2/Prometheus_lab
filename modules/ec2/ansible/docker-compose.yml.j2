@@ -20,14 +20,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik-dashboard.entrypoints=web,websecure"
-      - "traefik.http.routers.traefik.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathRegexp(`^/(traefik|dashboard)`)"
+      - "traefik.http.routers.traefik.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)"
       - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
 
-            # Definir un middleware para cambiar el path
-      - "traefik.http.middlewares.traefik-replacepath.stripprefix.prefixes=/traefik"
-
-      # Aplicar el middleware al enrutador de Prometheus
-      - "traefik.http.routers.traefik.middlewares=traefik-replacepath@docker"
     restart: always
     networks:
       - my_custom_network
@@ -45,7 +40,7 @@ services:
     labels:
       - "traefik.enable=true"
       #- "traefik.http.routers.prometheus.tls.certresolver=myresolver"
-      - "traefik.http.routers.prometheus.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathRegexp(`^/(prom|graph)`)"
+      - "traefik.http.routers.prometheus.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathRegexp(`^/(prom|graph|api/v1|static)`)"
       - "traefik.http.routers.prometheus.entrypoints=web,websecure"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
 
@@ -113,12 +108,12 @@ services:
     labels:
       - "traefik.enable=true"
       #- "traefik.http.routers.nagios.tls.certresolver=myresolver"
-      - "traefik.http.routers.nagios.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathPrefix(`/nagios`)"
+      - "traefik.http.routers.nagios.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathRegexp(`^/(nagiosadmin|.*\.php|nagios|js|styles)`)""
       - "traefik.http.routers.nagios.entrypoints=web,websecure"
       - "traefik.http.services.nagios.loadbalancer.server.port=8081"
 
       # Definir un middleware para cambiar el path
-      - "traefik.http.middlewares.nagios-replacepath.stripprefix.prefixes=/nagios"
+      - "traefik.http.middlewares.nagios-replacepath.stripprefix.prefixes=/nagiosadmin"
 
       # Aplicar el middleware al enrutador de Prometheus
       - "traefik.http.routers.nagios.middlewares=nagios-replacepath@docker"
