@@ -20,7 +20,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik-dashboard.entrypoints=web,websecure"
-      - "traefik.http.routers.traefik.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathPrefix(`/traefik_dashboard`)"
+      - "traefik.http.routers.traefik.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)"
       - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
     restart: always
     networks:
@@ -39,9 +39,16 @@ services:
     labels:
       - "traefik.enable=true"
       #- "traefik.http.routers.prometheus.tls.certresolver=myresolver"
-      - "traefik.http.routers.prometheus.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathPrefix(`/prometheus`)"
+      - "traefik.http.routers.prometheus.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathPrefix(`/prom`)"
       - "traefik.http.routers.prometheus.entrypoints=web,websecure"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+
+      # Definir un middleware para cambiar el path
+      - "traefik.http.middlewares.prometheus-replacepath.replacepath.regex=^/prom(.*)"
+      - "traefik.http.middlewares.prometheus-replacepath.replacepath.replacement=/$1"
+
+      # Aplicar el middleware al enrutador de Prometheus
+      - "traefik.http.routers.prometheus.middlewares=prometheus-replacepath@docker"
     depends_on:
       otel-collector:
         condition: service_started
