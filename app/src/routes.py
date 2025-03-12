@@ -3,9 +3,15 @@ Definición de rutas para la aplicación web de ejemplo.
 """
 import random
 import time
+import logging
 from flask import jsonify, request
 from opentelemetry import metrics
 from opentelemetry.trace import SpanKind
+
+
+# Configuración básica de logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("myapp")
 
 route_prefix="/myapp"
 
@@ -120,6 +126,7 @@ def register_routes(app, tracer):
     def health_check():
         with tracer.start_as_current_span("health_check_route", kind=SpanKind.SERVER):
             # Incrementar contador de solicitudes
+            logger.info(f"Received request to {route_prefix}/health (Health Check) - Method: {request.method}")
             request_counter.add(1, {"endpoint": "health", "method": "GET"})
             
             # Registrar duración
