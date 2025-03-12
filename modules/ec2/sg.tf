@@ -21,7 +21,7 @@ resource "aws_security_group" "prometheus" {
     cidr_blocks = ["0.0.0.0/0"]
     description = "Elasticsearch REST API"
   }
-  /*
+  
     ingress {
     from_port   = 9090
     to_port     = 9090
@@ -72,7 +72,7 @@ resource "aws_security_group" "prometheus" {
     to_port     = 9300
     protocol    = "tcp"    
     self = true
-  }*/
+  }
 
   # Ingress para NFS (puerto 2049) desde EC2
   ingress {

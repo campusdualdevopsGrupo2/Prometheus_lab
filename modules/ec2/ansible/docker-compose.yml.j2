@@ -1,6 +1,6 @@
 services:
   traefik:
-    image: traefik:v2.5
+    image: traefik:v3.3
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
@@ -39,7 +39,7 @@ services:
     labels:
       - "traefik.enable=true"
       #- "traefik.http.routers.prometheus.tls.certresolver=myresolver"
-      - "traefik.http.routers.prometheus.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathPrefix(`/prom`)"
+      - "traefik.http.routers.prometheus.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathRegexp(`^/(prom|graph)`)"
       - "traefik.http.routers.prometheus.entrypoints=web,websecure"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
 
@@ -106,12 +106,11 @@ services:
     container_name: nagios
     ports:
       - "8081:80"
-    #post_start:
-    #  - command: mv /nagios/nagios_config/hosts.cfg /opt/nagios/etc/hosts.cfg && mv /nagios/nagios_config/services.cfg /opt/nagios/etc/services.cfg 
-    #    user: root
+    post_start:
+     - command: ["/bin/bash", "-c", "mv /nagios/nagios_config/hosts.cfg /opt/nagios/etc/conf.d/hosts.cfg && mv /nagios/nagios_config/services.cfg /opt/nagios/etc/conf.d/services.cfg && mv /nagios/nagios_config/commands.cfg /opt/nagios/etc/conf.d/commands.cfg"] 
+       user: root
     environment:
       - NAGIOS_HOST_IP=172.28.0.10
-      - cfg_file=/nagios/nagios_config/hosts.cfg 
     labels:
       - "traefik.enable=true"
       #- "traefik.http.routers.nagios.tls.certresolver=myresolver"
