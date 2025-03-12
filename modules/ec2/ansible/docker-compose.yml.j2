@@ -108,7 +108,7 @@ services:
     labels:
       - "traefik.enable=true"
       #- "traefik.http.routers.nagios.tls.certresolver=myresolver"
-      - "traefik.http.routers.nagios.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathRegexp(`^/(nagiosadmin|.*\\.php|nagios|js|styles|images)`)"
+      - "traefik.http.routers.nagios.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathRegexp(`^(nagiosadmin|.*\\.php|nagios|js|styles|images)`)"
       - "traefik.http.routers.nagios.entrypoints=web,websecure"
       - "traefik.http.services.nagios.loadbalancer.server.port=8081"
 
