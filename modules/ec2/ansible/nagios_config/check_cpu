@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+
+# Estados de salida de Nagios
+STATE_OK=0
+STATE_WARNING=1
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+
+EXITCODE=$STATE_UNKNOWN
+
+# Umbrales por defecto para el nivel de CPU (porcentaje de CPU idle)
+# Nota: Valores bajos de "idle" indican alta utilización.
+WARNING=20
+CRITICAL=10
+
+# Valores por defecto para SNMP (estos pueden sobreescribirse mediante parámetros)
+HOST=""
+PASS="public"
+
+# Función para mostrar ayuda
+print_help() {
+  echo "Usage: $0 -H <host> -C <community> [-w warning_threshold] [-c critical_threshold]"
+  echo "Example: $0 -H 192.168.1.100 -C public -w 20 -c 10"
+}
+
+# Función para mostrar la versión
+print_version() {
+  echo "$0 version 1.0"
+}
+
+# Procesar opciones de línea de comandos
+while getopts H:v:C:w:c:hV:D OPT; do
+  case "$OPT" in
+    H) HOST=$OPTARG ;;
+    C) PASS=$OPTARG ;;
+    w) WARNING=$OPTARG ;;
+    c) CRITICAL=$OPTARG ;;
+    h) print_help
+       exit $STATE_UNKNOWN ;;
+    V) print_version
+       exit $STATE_UNKNOWN ;;
+    D) DEBUG=true ;;
+    *) print_help
+       exit $STATE_UNKNOWN ;;
+  esac
+done
+
+if [ -z "$HOST" ]; then
+  echo "Error: El parámetro -H <host> es obligatorio."
+  print_help
+  exit $STATE_UNKNOWN
+fi
+
+# Ejecutar snmpwalk para obtener la información de CPU
+cpu_info=$(snmpwalk -v 2c -r 4 -c "$PASS" "$HOST" UCD-SNMP-MIB::systemStats)
+
+# Extraer los valores de CPU usando grep y awk.
+# Se asume que el output es similar a:
+# UCD-SNMP-MIB::ssCpuUser.0 = INTEGER: 10
+# UCD-SNMP-MIB::ssCpuSystem.0 = INTEGER: 5
+# UCD-SNMP-MIB::ssCpuIdle.0 = INTEGER: 85
+
+cpu_user=$(echo "$cpu_info" | grep 'ssCpuUser' | awk '{print $NF}')
+cpu_sys=$(echo "$cpu_info" | grep 'ssCpuSystem' | awk '{print $NF}')
+cpu_idle=$(echo "$cpu_info" | grep 'ssCpuIdle' | awk '{print $NF}')
+
+# Validar que se haya obtenido un valor numérico para cpu_idle
+if ! [[ "$cpu_idle" =~ ^[0-9]+$ ]]; then
+  echo "CPU UNKNOWN - No se pudo obtener el valor de CPU idle. Recibido: $cpu_idle"
+  exit $STATE_UNKNOWN
+fi
+
+# Comparar el valor del CPU idle con los umbrales.
+# Menor porcentaje de idle indica mayor utilización.
+if [ "$cpu_idle" -lt "$CRITICAL" ]; then
+  MESSAGE="CPU CRITICAL - user=${cpu_user}%, sys=${cpu_sys}%, idle=${cpu_idle}%"
+  EXITCODE=$STATE_CRITICAL
+elif [ "$cpu_idle" -lt "$WARNING" ]; then
+  MESSAGE="CPU WARNING - user=${cpu_user}%, sys=${cpu_sys}%, idle=${cpu_idle}%"
+  EXITCODE=$STATE_WARNING
+else
+  MESSAGE="CPU OK - user=${cpu_user}%, sys=${cpu_sys}%, idle=${cpu_idle}%"
+  EXITCODE=$STATE_OK
+fi
+
+# Datos de rendimiento (perfdata) para Nagios
+PERFDATA="user=${cpu_user}%;sys=${cpu_sys}%;idle=${cpu_idle}%"
+
+# Salida final
+echo "${MESSAGE} | ${PERFDATA}"
+exit $EXITCODE
+
