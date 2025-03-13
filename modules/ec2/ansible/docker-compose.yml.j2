@@ -96,7 +96,7 @@ services:
     #ports:
       #- "8081:80"
     post_start:
-     - command: ["/bin/bash", "-c", "mv /nagios/nagios_config/hosts.cfg /nagios/nagios_config/services.cfg /nagios/nagios_config/commands.cfg /opt/nagios/etc/conf.d/ && mv /nagios/nagios_config/check_cpu /nagios/nagios_config/check_memory /nagios/nagios_config/check_disk /usr/lib/nagios/plugins/ && chmod -R 755 /usr/lib/nagios/plugins/"] 
+     - command: ["/bin/bash", "-c", "mv /nagios/nagios_config/hosts.cfg /nagios/nagios_config/services.cfg /nagios/nagios_config/commands.cfg /opt/nagios/etc/conf.d/ && mv /nagios/nagios_config/check_cpu.sh /nagios/nagios_config/check_memory.sh /nagios/nagios_config/check_disk.sh /usr/lib/nagios/plugins/ && chmod -R 755 /usr/lib/nagios/plugins/"] 
        user: root
     labels:
       - "traefik.enable=true"
