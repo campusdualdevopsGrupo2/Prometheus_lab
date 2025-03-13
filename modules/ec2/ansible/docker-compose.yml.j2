@@ -13,7 +13,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080"
+    #  - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "/mnt/efs/traefik/letsencrypt:/letsencrypt"  # Volumen en EFS para certificados
@@ -30,8 +30,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prometheus
-    ports:
-      - "9090:9090"
+    #ports:
+    #  - "9090:9090"
     volumes:
       - "/mnt/efs/prometheus:/prometheus"  # Volumen en EFS para datos de Prometheus
      
@@ -57,8 +57,8 @@ services:
     image: python:3.10.12
     working_dir: /mnt/efs/app
     command: ["/bin/bash", "-c", "pip install --no-cache-dir -r ./requirements.txt && chmod +x ./main.py && python ./main.py"]
-    ports:
-      - "8000:8000"
+    #ports:
+    #  - "8000:8000"
     volumes:
       - "/home/ubuntu/src:/mnt/efs/app"
     environment:
@@ -79,10 +79,10 @@ services:
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
     command: ["--config", "/otel/conf/otel-collector-config.yml"]
-    ports:
-      - "4317:4317"
-      - "8889:8889"
-      - "13133:13133"
+    #ports:
+      #- "4317:4317"
+      #- "8889:8889"
+      #- "13133:13133"
     volumes:
       - "/mnt/efs/otel:/otel"
     restart: always
@@ -93,8 +93,8 @@ services:
     image: jasonrivers/nagios:latest
     command: ["/bin/bash", "-c", "htpasswd -cb /opt/nagios/etc/htpasswd.users nagiosadmin campusdual && exec /usr/local/bin/start_nagios"]
     container_name: nagios
-    ports:
-      - "8081:80"
+    #ports:
+      #- "8081:80"
     post_start:
      - command: ["/bin/bash", "-c", "mv /nagios/nagios_config/hosts.cfg /nagios/nagios_config/services.cfg /nagios/nagios_config/commands.cfg /opt/nagios/etc/conf.d/ && mv /nagios/nagios_config/check_cpu /nagios/nagios_config/check_memory /nagios/nagios_config/check_disk /usr/lib/nagios/plugins/ && chmod -R 755 /usr/lib/nagios/plugins/"] 
        user: root
