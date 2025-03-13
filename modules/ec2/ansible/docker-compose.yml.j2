@@ -6,10 +6,12 @@ services:
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
- #     - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
- #     - "--certificatesresolvers.myresolver.acme.email=tuemail@ejemplo.com"
- #     - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
- #     - "chmod 600 /letsencrypt/acme.json"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=tuemail@ejemplo.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entryPoints.web.http.redirections.entrypoint.scheme=https"
+      #- "chmod 600 /letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
@@ -19,8 +21,10 @@ services:
       - "/mnt/efs/traefik/letsencrypt:/letsencrypt"  # Volumen en EFS para certificados
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.traefik-dashboard.tls=true"
+      - "traefik.http.routers.traefik-dashboard.tls.certresolver=myresolver"
       - "traefik.http.routers.traefik-dashboard.entrypoints=web,websecure"
-      - "traefik.http.routers.traefik.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)"
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)"
       - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
     restart: always
 
@@ -37,7 +41,8 @@ services:
      
     labels:
       - "traefik.enable=true"
-      #- "traefik.http.routers.prometheus.tls.certresolver=myresolver"
+      - "traefik.http.routers.prometheus.tls=true"
+      - "traefik.http.routers.prometheus.tls.certresolver=myresolver"
       - "traefik.http.routers.prometheus.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathRegexp(`^/(prom|graph|api/v1|static)`)"
       - "traefik.http.routers.prometheus.entrypoints=web,websecure"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
@@ -66,7 +71,8 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317  # Aquí configuramos la variable de entorno
     labels:
       - "traefik.enable=true"
-      #- "traefik.http.routers.myapp.tls.certresolver=myresolver"
+      - "traefik.http.routers.myapp.tls=true"
+      - "traefik.http.routers.myapp.tls.certresolver=myresolver"
       - "traefik.http.routers.myapp.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathPrefix(`/myapp/`)"
       - "traefik.http.routers.myapp.entrypoints=web,websecure"
       - "traefik.http.services.myapp.loadbalancer.server.port=8000"
@@ -100,7 +106,8 @@ services:
        user: root
     labels:
       - "traefik.enable=true"
-      #- "traefik.http.routers.nagios.tls.certresolver=myresolver"
+      - "traefik.http.routers.nagios.tls=true"
+      - "traefik.http.routers.nagios.tls.certresolver=myresolver"
       - "traefik.http.routers.nagios.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathRegexp(`^/(nagiosadmin|.*\\.php|nagios|js|styles|images)`)"
       - "traefik.http.routers.nagios.entrypoints=web,websecure"
       - "traefik.http.services.nagios.loadbalancer.server.port=80"
