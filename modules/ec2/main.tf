@@ -105,8 +105,8 @@ resource "null_resource" "provisioner1" {
   }
   #Usar triggers para forzar la ejecución del recurso
   triggers = {
-    #always_run = join(",", aws_instance.ec2_node[*].id) 
-    always_run = "${timestamp()}"
+    always_run = join(",", aws_instance.ec2_node[*].id) 
+    #always_run = "${timestamp()}"
   }
  
   depends_on = [null_resource.update_hosts_ini2]
