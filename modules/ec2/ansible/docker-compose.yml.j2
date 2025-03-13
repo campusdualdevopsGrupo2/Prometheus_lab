@@ -22,10 +22,8 @@ services:
       - "traefik.http.routers.traefik-dashboard.entrypoints=web,websecure"
       - "traefik.http.routers.traefik.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)"
       - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
-
     restart: always
-    networks:
-      - my_custom_network
+
 
   prometheus:
     command: ["sh", "-c", "sudo chown -R 1000:1000 /prometheus && mkdir -p /prometheus/data && exec prometheus --config.file=/prometheus/config/prometheus.yml --storage.tsdb.path=/prometheus/data --web.config.file=/prometheus/config/web.yml"]
@@ -53,8 +51,7 @@ services:
       otel-collector:
         condition: service_started
     restart: always
-    networks:
-      - my_custom_network
+
 
   myapp:
     image: python:3.10.12
@@ -77,8 +74,7 @@ services:
       otel-collector:
         condition: service_started
     restart: always
-    networks:
-      - my_custom_network
+
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
@@ -90,8 +86,7 @@ services:
     volumes:
       - "/mnt/efs/otel:/otel"
     restart: always
-    networks:
-      - my_custom_network
+
 
 
   nagios:
@@ -103,8 +98,6 @@ services:
     post_start:
      - command: ["/bin/bash", "-c", "mv /nagios/nagios_config/hosts.cfg /nagios/nagios_config/services.cfg /nagios/nagios_config/commands.cfg /opt/nagios/etc/conf.d/ && mv /nagios/nagios_config/check_cpu /nagios/nagios_config/check_memory /nagios/nagios_config/check_disk /usr/lib/nagios/plugins/ && chmod -R 755 /usr/lib/nagios/plugins/"] 
        user: root
-    environment:
-      - NAGIOS_HOST_IP=172.28.0.10
     labels:
       - "traefik.enable=true"
       #- "traefik.http.routers.nagios.tls.certresolver=myresolver"
@@ -120,9 +113,6 @@ services:
     volumes:
       - "/mnt/efs/nagios:/nagios" 
     restart: always
-    networks:
-      my_custom_network:
-        ipv4_address: 172.28.0.10
     deploy:
       resources:
         limits:
@@ -131,12 +121,3 @@ services:
           memory: 1g
 
   
-networks:
-  my_custom_network:
-    driver: bridge
-    ipam:
-      driver: default  # El driver de IPAM por defecto
-      config:
-        - subnet: "172.28.0.0/24"  # Rango de IP para esta red
-          gateway: "172.28.0.1"  # IP del gateway de la red
-
