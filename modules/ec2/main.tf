@@ -125,3 +125,17 @@ resource "null_resource" "provisioner2" {
   depends_on = [null_resource.provisioner1]
 }
 
+resource "null_resource" "provisioner3" {
+  provisioner "local-exec" {
+
+    command = "export ANSIBLE_CONFIG=../modules/ec2/ansible/ansible.cfg && ansible-playbook -i ../modules/ec2/ansible/hosts.ini ../modules/ec2/ansible/install3.yml"
+  }
+  #Usar triggers para forzar la ejecución del recurso
+  triggers = {
+    #always_run = join(",", aws_instance.ec2_node[*].id) 
+    always_run = "${timestamp()}"
+  }
+  
+  depends_on = [null_resource.provisioner2]
+}
+
