@@ -1,0 +1,39 @@
+name: Build and Push to ECR Prometheus
+
+on:
+  workflow_dispatch:        # Permite disparar el workflow manualmente desde GitHub
+#  push:
+#    branches:
+#      - main              # O la rama que desees
+#     paths:
+#      - "Dockerfiles/Dockerfilemyapp
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU emulation
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          region: eu-west-3
+
+      - name: Build and push prometheus-permisos image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./modules/ec2/ansible/Dockerfile.prometheus
+          platforms: linux/amd64
+          push: true
+          tags: 248189943700.dkr.ecr.eu-west-3.amazonaws.com/grupo2:prometheus-permisos
+
+      
+
