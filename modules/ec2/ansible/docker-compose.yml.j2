@@ -31,9 +31,7 @@ services:
 
   prometheus:
     command: ["sh", "-c", "sudo chown -R 1000:1000 /prometheus && mkdir -p /prometheus/data && exec prometheus --config.file=/prometheus/config/prometheus.yml --storage.tsdb.path=/prometheus/data --web.config.file=/prometheus/config/web.yml"]
-    build:
-      context: .
-      dockerfile: Dockerfile.prometheus
+    image: 248189943700.dkr.ecr.eu-west-3.amazonaws.com/grupo2:prometheus-permisos
     #ports:
     #  - "9090:9090"
     volumes:
@@ -59,7 +57,7 @@ services:
 
 
   myapp:
-    image: python:3.10.12
+    image: 248189943700.dkr.ecr.eu-west-3.amazonaws.com/grupo2:myapp
     working_dir: /mnt/efs/app
     command: ["/bin/bash", "-c", "pip install --no-cache-dir -r ./requirements.txt && chmod +x ./main.py && python ./main.py"]
     #ports:
