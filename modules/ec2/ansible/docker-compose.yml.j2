@@ -115,6 +115,33 @@ services:
 
       # Aplicar el middleware al enrutador de Prometheus
       - "traefik.http.routers.nagios.middlewares=nagios-replacepath@docker"
+
+    grafana:
+    image: grafana/grafana:11.5.2-ubuntu
+    container_name: grafana
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: /mnt/efs/data/grafana
+        target: /var/lib/grafana
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.tls=true"
+      - "traefik.http.routers.grafana.tls.certresolver=myresolver"
+      - "traefik.http.routers.grafana.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathRegexp(`^/(grafana|.*\\.php|grafana|js|styles|images)`)"
+      - "traefik.http.routers.grafana.entrypoints=web,websecure"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+      # Definir un middleware para cambiar el path
+      - "traefik.http.middlewares.grafana-replacepath.stripprefix.prefixes=/grafana"
+
+      # Aplicar el middleware al enrutador de Prometheus
+      - "traefik.http.routers.grafana.middlewares=grafana-replacepath@docker"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin # You can change this to your desired admin password
+      - GF_SERVER_ROOT_URL=http://{{ server_ip }}/grafana
+    user: '0'
+
     volumes:
       - "/mnt/efs/nagios:/nagios" 
     restart: always
