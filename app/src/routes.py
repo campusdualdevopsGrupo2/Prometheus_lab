@@ -24,19 +24,25 @@ def register_routes(app, tracer):
     """
     # Crear medidores personalizados
     meter = metrics.get_meter("example-app")
+    
+    # Contador de solicitudes HTTP
     request_counter = meter.create_counter(
         name="http_requests",
         description="Número de peticiones HTTP",
         unit="1",
     )
-    #request_duration = meter.create_histogram(
-    #    name="http_request_duration",
-    #    description="Duración de las peticiones HTTP",
-    #    unit="ms",
-    #)
+    
+    # Histograma para latencia de las solicitudes
+    request_duration = meter.create_histogram(
+        name="http_request_duration_seconds",
+        description="Duración de las peticiones HTTP en segundos",
+        unit="s",
+    )
     
     @app.route(route_prefix+'/')
     def home():
+        start_time = time.time()  # Registrar inicio de la solicitud
+        
         with tracer.start_as_current_span("home_route", kind=SpanKind.SERVER) as span:
             # Incrementar contador de solicitudes
             request_counter.add(1, {"endpoint": "home", "method": "GET"})
@@ -44,18 +50,24 @@ def register_routes(app, tracer):
             # Simular carga de trabajo
             time.sleep(random.uniform(0.05, 0.2))
             
-            # Registrar duración (automática con el span)
+            # Registrar duración con el span (automática)
             span.set_attribute("endpoint", "home")
             span.set_attribute("method", "GET")
             span.set_attribute("status", "success")
-            
-            return jsonify({
-                "message": "¡Bienvenido a la aplicación de ejemplo!",
-                "status": "OK"
-            })
+        
+        # Calcular la latencia y registrarla en el histograma
+        latency = time.time() - start_time
+        request_duration.record(latency, {"endpoint": "home", "method": "GET"})
+        
+        return jsonify({
+            "message": "¡Bienvenido a la aplicación de ejemplo!",
+            "status": "OK"
+        })
     
     @app.route(route_prefix+'/api/data')
     def get_data():
+        start_time = time.time()  # Registrar inicio de la solicitud
+        
         with tracer.start_as_current_span("get_data_route", kind=SpanKind.SERVER) as span:
             # Incrementar contador de solicitudes
             request_counter.add(1, {"endpoint": "api/data", "method": "GET"})
@@ -63,7 +75,7 @@ def register_routes(app, tracer):
             # Simular carga de trabajo
             time.sleep(random.uniform(0.1, 0.3))
             
-            # Registrar duración (automática con el span)
+            # Registrar duración con el span (automática)
             span.set_attribute("endpoint", "api/data")
             span.set_attribute("method", "GET")
             span.set_attribute("status", "success")
@@ -73,11 +85,17 @@ def register_routes(app, tracer):
                 {"id": i, "value": random.randint(1, 100)}
                 for i in range(1, 11)
             ]
-            
-            return jsonify({"data": data})
+        
+        # Calcular la latencia y registrarla en el histograma
+        latency = time.time() - start_time
+        request_duration.record(latency, {"endpoint": "api/data", "method": "GET"})
+        
+        return jsonify({"data": data})
     
     @app.route(route_prefix+'/api/slow')
     def slow_endpoint():
+        start_time = time.time()  # Registrar inicio de la solicitud
+        
         with tracer.start_as_current_span("slow_endpoint_route", kind=SpanKind.SERVER) as span:
             # Incrementar contador de solicitudes
             request_counter.add(1, {"endpoint": "api/slow", "method": "GET"})
@@ -85,12 +103,16 @@ def register_routes(app, tracer):
             # Simular un endpoint lento
             time.sleep(random.uniform(1.0, 3.0))
             
-            # Registrar duración (automática con el span)
+            # Registrar duración con el span (automática)
             span.set_attribute("endpoint", "api/slow")
             span.set_attribute("method", "GET")
             span.set_attribute("status", "success")
-            
-            return jsonify({"message": "Esta es una respuesta lenta"})
+        
+        # Calcular la latencia y registrarla en el histograma
+        latency = time.time() - start_time
+        request_duration.record(latency, {"endpoint": "api/slow", "method": "GET"})
+        
+        return jsonify({"message": "Esta es una respuesta lenta"})
     
     @app.route(route_prefix+'/api/error')
     def error_endpoint():
@@ -119,7 +141,7 @@ def register_routes(app, tracer):
             logger.info(f"Received request to {route_prefix}/health (Health Check) - Method: {request.method}")
             request_counter.add(1, {"endpoint": "health", "method": "GET"})
             
-            # Registrar duración (automática con el span)
+            # Registrar duración con el span (automática)
             span.set_attribute("endpoint", "health")
             span.set_attribute("method", "GET")
             span.set_attribute("status", "success")
