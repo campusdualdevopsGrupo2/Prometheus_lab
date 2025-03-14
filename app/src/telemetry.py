@@ -36,7 +36,7 @@ def setup_telemetry(service_name):
         meter: El medidor configurado
     """
     # Obtener el endpoint del exportador OTLP desde las variables de entorno
-    otlp_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317")
+    otlp_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://otel-collector:4317")
     
     # Configurar recursos para identificar el servicio
     resource = Resource.create({

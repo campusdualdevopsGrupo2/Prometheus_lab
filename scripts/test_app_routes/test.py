@@ -6,25 +6,25 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 # Configura las rutas de tu aplicación Flask
 BASE_URL = "http://g2-prometheus.campusdual.mkcampus.com/myapp"  # Cambia esto si tu aplicación está en otro host/puerto
 ROUTES = [
-    ("/", 2),            # Ruta / tiene 50 peticiones a realizar
-    ("/api/data", 22500),    # Ruta /api/data tiene 100 peticiones a realizar
-    ("/api/slow", 3),     # Ruta /api/slow tiene 50 peticiones a realizar
-    ("/api/error", 1),   # Ruta /api/error tiene 100 peticiones a realizar
-    ("/health", 5)        # Ruta /health tiene 10 peticiones a realizar
+    ("/", 500),            # Ruta / tiene 50 peticiones a realizar
+    ("/api/data", 22500),    # Ruta /api/data tiene 22500 peticiones a realizar
+    ("/api/slow", 450),     # Ruta /api/slow tiene 50 peticiones a realizar
+    ("/api/error", 2100),   # Ruta /api/error tiene 100 peticiones a realizar
+    ("/health", 910)        # Ruta /health tiene 10 peticiones a realizar
 ]
 
-TOTAL_REQUESTS = 8500  # Total de veces que se decidirá qué endpoint probar
+TOTAL_REQUESTS = 300  # Total de veces que se decidirá qué endpoint probar
 
 def distribute_requests():
-    """Distribuye aleatoriamente el número de veces que se probará cada ruta"""
+    """Distribuye aleatoriamente las peticiones entre las rutas según la cantidad definida en ROUTES"""
     all_requests = []
 
-    # Repetimos por la cantidad de veces que queremos decidir un endpoint
-    for _ in range(TOTAL_REQUESTS):
-        # Elegimos aleatoriamente una ruta
-        route, _ = random.choice(ROUTES)
-        all_requests.append(route)
+    # Para cada ruta, repetimos la cantidad de veces que se tiene que hacer la petición
+    for route, count in ROUTES:
+        all_requests.extend([route] * count)
 
+    # Mezclamos aleatoriamente las rutas para que las peticiones no sean secuenciales
+    random.shuffle(all_requests)
     return all_requests
 
 def test_route(route):
@@ -37,7 +37,7 @@ def test_route(route):
 
 def main():
     """Llama a cada ruta la cantidad especificada de veces"""
-    all_requests = distribute_requests()  # Distribuye las 14,500 selecciones aleatorias de endpoints
+    all_requests = distribute_requests()  # Distribuye las peticiones entre las rutas según la configuración
 
     # Realiza las peticiones de forma paralela
     with ThreadPoolExecutor(max_workers=45) as executor:
