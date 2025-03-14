@@ -26,7 +26,7 @@ services:
       - "traefik.http.routers.traefik-dashboard.entrypoints=web,websecure"
       - "traefik.http.routers.traefik-dashboard.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)"
       - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
-    restart: always
+    restart: unless-stopped
 
 
   prometheus:
@@ -53,7 +53,7 @@ services:
     depends_on:
       otel-collector:
         condition: service_started
-    restart: always
+    restart: unless-stopped
 
 
   myapp:
@@ -77,7 +77,7 @@ services:
     depends_on:
       otel-collector:
         condition: service_started
-    restart: always
+    restart: unless-stopped
 
 
   otel-collector:
@@ -87,11 +87,22 @@ services:
       #- "4317:4317"
       #- "8889:8889"
       #- "13133:13133"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.otel.tls=true"
+      - "traefik.http.routers.otel.tls.certresolver=myresolver"
+      - "traefik.http.routers.otel.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathRegexp(`^/otel`)"
+      - "traefik.http.routers.otel.entrypoints=web,websecure"
+      - "traefik.http.services.otel.loadbalancer.server.port=4318"
+
+      # Definir un middleware para cambiar el path
+      - "traefik.http.middlewares.otel-replacepath.stripprefix.prefixes=/otel"
+
+      # Aplicar el middleware al enrutador de Prometheus
+      - "traefik.http.routers.otel.middlewares=otel-replacepath@docker"
     volumes:
       - "/mnt/efs/otel:/otel"
-    restart: always
-
-
+    restart: unless-stopped
 
   nagios:
     image: jasonrivers/nagios:latest
@@ -115,8 +126,17 @@ services:
 
       # Aplicar el middleware al enrutador de Prometheus
       - "traefik.http.routers.nagios.middlewares=nagios-replacepath@docker"
+    volumes:
+      - "/mnt/efs/nagios:/nagios" 
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 1g
 
-    grafana:
+  grafana:
     image: grafana/grafana:11.5.2-ubuntu
     container_name: grafana
     restart: unless-stopped
@@ -141,15 +161,3 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin # You can change this to your desired admin password
       - GF_SERVER_ROOT_URL=http://{{ server_ip }}/grafana
     user: '0'
-
-    volumes:
-      - "/mnt/efs/nagios:/nagios" 
-    restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 2g
-        reservations:
-          memory: 1g
-
-  

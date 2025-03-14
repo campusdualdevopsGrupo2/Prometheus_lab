@@ -38,4 +38,8 @@
       dest: /mnt/efs/nagios/nagios_config/
       mode: '0644'
 
-
+  - name: Copy cert to host
+    ansible.builtin.copy:
+      src: ./certs/ca/   # Ruta de la plantilla
+      dest: /mnt/efs/otel/ca/    # Ruta de destino
+      mode: '0644'

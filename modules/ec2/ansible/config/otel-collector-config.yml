@@ -9,7 +9,9 @@ receivers:
         endpoint: otel-collector:4317
       http:
         endpoint: otel-collector:4318
-
+        tls_settings:
+          cert_file: /otel/ca/ca.pem
+          key_file: /otel/ca/ca.key
 exporters:
   prometheus:
     endpoint: "otel-collector:8889"  # Prometheus scrapea métricas desde aquí
