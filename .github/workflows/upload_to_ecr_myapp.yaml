@@ -34,7 +34,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: .Dockerfiles/Dockerfile.myapp       # Si tu Dockerfile para myapp se llama 'Dockerfile.myapp'
+          file: ./Dockerfiles/Dockerfile.myapp       # Si tu Dockerfile para myapp se llama 'Dockerfile.myapp'
           platforms: linux/amd64
           push: true
           tags: 248189943700.dkr.ecr.eu-west-3.amazonaws.com/grupo2:myapp
