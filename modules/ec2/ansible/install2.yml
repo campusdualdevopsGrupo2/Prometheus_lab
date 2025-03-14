@@ -24,35 +24,14 @@
       dest: /mnt/efs/prometheus/config/web.yml
       mode: "0644"
 
-  # Tarea 4: Copia el código fuente de la aplicación al servidor
-  - name: Copiar código fuente de la aplicación
-    copy:
-      src: ../../../app/src/
-      dest: /home/ubuntu/src/
-      mode: '0644'
-
-  # Tarea 5: Copia el archivo de dependencias (requirements.txt) al servidor
-  - name: Copiar archivo de dependencias
-    copy:
-      src: ../../../app/requirements.txt
-      dest: /home/ubuntu/src/requirements.txt
-      mode: '0644'
-
-  # Tarea 6: Copia el Dockerfile de Prometheus al servidor
-  - name: Copy Dockerfile
-    copy:
-      src: ./Dockerfile.prometheus
-      dest: /home/ubuntu/Dockerfile.prometheus
-      mode: '0644'
-
-  # Tarea 7: Genera el archivo docker-compose.yml a partir de una plantilla
+  # Tarea 4: Genera el archivo docker-compose.yml a partir de una plantilla
   - name: Generate docker-compose.yml from template
     template:
       src: ./docker-compose.yml.j2
       dest: /home/ubuntu/docker-compose.yml
       mode: '0644'
 
-  # Añadir archivos de configuracion nagios a la imagen
+  # Tarea 5: Añadir archivos de configuracion nagios a la imagen
   - name: Deploy Nagios Configuration
     copy:
       src: ./nagios_config/

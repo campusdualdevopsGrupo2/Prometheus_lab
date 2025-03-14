@@ -1,12 +1,12 @@
 name: Build and Push to ECR Myapp
 
 on:
-  workflow_dispatch:        # Permite disparar el workflow manualmente desde GitHub
-#  push:
-#    branches:
-#      - main              # O la rama que desees
-#     paths:
-#      - "Dockerfiles/Dockerfile.myapp
+      
+  push:
+    branches:
+      - main              
+    paths:
+      - "./Dockerfiles/Dockerfile.myapp"
 jobs:
   build:
     runs-on: ubuntu-latest

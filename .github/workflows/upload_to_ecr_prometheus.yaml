@@ -1,12 +1,11 @@
 name: Build and Push to ECR Prometheus
 
-on:
-  workflow_dispatch:        # Permite disparar el workflow manualmente desde GitHub
-#  push:
-#    branches:
-#      - main              # O la rama que desees
-#     paths:
-#      - "Dockerfiles/Dockerfile.prometheus
+on:         
+  push:
+   branches:
+     - main              # O la rama que desees
+   paths:
+      - "./Dockerfiles/Dockerfile.prometheus"
 jobs:
   build:
     runs-on: ubuntu-latest
