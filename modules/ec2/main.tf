@@ -22,7 +22,8 @@ resource "aws_instance" "ec2_node" {
   key_name        = aws_key_pair.key.key_name
   disable_api_stop = false
   
-
+  # Asignar un rol a la instancia para acceder a ECR
+  iam_instance_profile = aws_iam_instance_profile.ec2_role.name
   # Seguridad
   vpc_security_group_ids = [aws_security_group.prometheus.id,data.aws_security_group.default.id]
   root_block_device {
