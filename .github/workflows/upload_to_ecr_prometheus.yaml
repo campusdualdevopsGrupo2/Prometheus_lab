@@ -6,7 +6,7 @@ on:
 #    branches:
 #      - main              # O la rama que desees
 #     paths:
-#      - "Dockerfiles/Dockerfilemyapp
+#      - "Dockerfiles/Dockerfile.prometheus
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,8 +23,9 @@ jobs:
 
       - name: Log in to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
-        with:
-          region: eu-west-3
+        env:
+          AWS_REGION: eu-west-3
+
 
       - name: Build and push prometheus-permisos image
         uses: docker/build-push-action@v6
