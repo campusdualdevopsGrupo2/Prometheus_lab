@@ -17,7 +17,7 @@ route_prefix="/myapp"
 
 # Crear medidores personalizados
 meter = metrics.get_meter("example-app")
-request_counter = meter.create_counter(
+request_counter = meter.create_histogram(
     name="http.requests",
     description="Número de peticiones HTTP",
     unit="1",
