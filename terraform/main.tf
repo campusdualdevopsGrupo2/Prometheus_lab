@@ -14,10 +14,4 @@ module "ec2" {
   ami_id= var.ami_id
   dns_name = var.dns_name
   #region=var.region
-  depends_on = [ module.lambda ]
-}
-
-module "lambda" {
-  source = "../modules/dns_lambda"
-
 }
