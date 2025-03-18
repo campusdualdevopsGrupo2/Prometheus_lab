@@ -11,7 +11,7 @@ services:
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entryPoints.web.http.redirections.entrypoint.scheme=https"
-      #- "chmod 600 /letsencrypt/acme.json"
+      - "chmod 600 /letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
