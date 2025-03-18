@@ -58,11 +58,6 @@ services:
 
   myapp:
     image: 248189943700.dkr.ecr.eu-west-3.amazonaws.com/grupo2:myapp
-    working_dir: /mnt/efs/app
-    #ports:
-    #  - "8000:8000"
-    volumes:
-      - "/home/ubuntu/src:/mnt/efs/app"
     environment:
       - ENV=production
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317  # Aquí configuramos la variable de entorno
