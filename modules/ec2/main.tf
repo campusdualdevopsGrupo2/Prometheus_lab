@@ -17,7 +17,7 @@ data "aws_security_group" "default" {
 resource "aws_instance" "ec2_node" {
   #ami             = "ami-091f18e98bc129c4e" # Ubuntu 24 ami londres
   ami             = var.ami_id
-  instance_type   = "t3.xlarge"
+  instance_type   = "t3.large"
   subnet_id       = var.subnet_ids
   key_name        = aws_key_pair.key.key_name
   disable_api_stop = false

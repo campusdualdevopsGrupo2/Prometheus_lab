@@ -24,7 +24,7 @@ services:
       - "traefik.http.routers.traefik-dashboard.tls=true"
       - "traefik.http.routers.traefik-dashboard.tls.certresolver=myresolver"
       - "traefik.http.routers.traefik-dashboard.entrypoints=web,websecure"
-      - "traefik.http.routers.traefik-dashboard.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)"
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.{{ server_ip }}.campusdual.mkcampus.com`)"
       - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
     restart: unless-stopped
 
@@ -41,15 +41,15 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.prometheus.tls=true"
       - "traefik.http.routers.prometheus.tls.certresolver=myresolver"
-      - "traefik.http.routers.prometheus.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathRegexp(`^/(prom|graph|api/v1|static)`)"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.{{ server_ip }}.campusdual.mkcampus.com`)"
       - "traefik.http.routers.prometheus.entrypoints=web,websecure"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
 
       # Definir un middleware para cambiar el path
-      - "traefik.http.middlewares.prometheus-replacepath.stripprefix.prefixes=/prom"
+      #- "traefik.http.middlewares.prometheus-replacepath.stripprefix.prefixes=/prom"
 
       # Aplicar el middleware al enrutador de Prometheus
-      - "traefik.http.routers.prometheus.middlewares=prometheus-replacepath@docker"
+      #- "traefik.http.routers.prometheus.middlewares=prometheus-replacepath@docker"
     depends_on:
       otel-collector:
         condition: service_started
@@ -71,7 +71,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.myapp.tls=true"
       - "traefik.http.routers.myapp.tls.certresolver=myresolver"
-      - "traefik.http.routers.myapp.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathPrefix(`/myapp/`)"
+      - "traefik.http.routers.myapp.rule=Host(`myapp.{{ server_ip }}.campusdual.mkcampus.com`)&& PathPrefix(`/myapp/`)"
       - "traefik.http.routers.myapp.entrypoints=web,websecure"
       - "traefik.http.services.myapp.loadbalancer.server.port=8000"
     depends_on:
@@ -91,15 +91,16 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.otel.tls=true"
       - "traefik.http.routers.otel.tls.certresolver=myresolver"
-      - "traefik.http.routers.otel.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathRegexp(`^/otel`)"
+      - "traefik.http.routers.otel.rule=Host(`otel.{{ server_ip }}.campusdual.mkcampus.com`)"
       - "traefik.http.routers.otel.entrypoints=web,websecure"
       - "traefik.http.services.otel.loadbalancer.server.port=4318"
+#      - "traefik.http.services.otel.loadbalancer.server.scheme=https"
 
       # Definir un middleware para cambiar el path
-      - "traefik.http.middlewares.otel-replacepath.stripprefix.prefixes=/otel"
+      #- "traefik.http.middlewares.otel-replacepath.stripprefix.prefixes=/otel"
 
       # Aplicar el middleware al enrutador de Prometheus
-      - "traefik.http.routers.otel.middlewares=otel-replacepath@docker"
+      #- "traefik.http.routers.otel.middlewares=otel-replacepath@docker"
     volumes:
       - "/mnt/efs/otel:/otel"
     restart: unless-stopped
@@ -117,15 +118,15 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.nagios.tls=true"
       - "traefik.http.routers.nagios.tls.certresolver=myresolver"
-      - "traefik.http.routers.nagios.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathRegexp(`^/(nagiosadmin|.*\\.php|nagios|js|styles|images)`)"
+      - "traefik.http.routers.nagios.rule=Host(`nagios.{{ server_ip }}.campusdual.mkcampus.com`)"
       - "traefik.http.routers.nagios.entrypoints=web,websecure"
       - "traefik.http.services.nagios.loadbalancer.server.port=80"
 
       # Definir un middleware para cambiar el path
-      - "traefik.http.middlewares.nagios-replacepath.stripprefix.prefixes=/nagiosadmin"
+      #- "traefik.http.middlewares.nagios-replacepath.stripprefix.prefixes=/nagiosadmin"
 
       # Aplicar el middleware al enrutador de Prometheus
-      - "traefik.http.routers.nagios.middlewares=nagios-replacepath@docker"
+      #- "traefik.http.routers.nagios.middlewares=nagios-replacepath@docker"
     volumes:
       - "/mnt/efs/nagios:/nagios" 
     restart: unless-stopped
@@ -148,16 +149,16 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.grafana.tls=true"
       - "traefik.http.routers.grafana.tls.certresolver=myresolver"
-      - "traefik.http.routers.grafana.rule=Host(`{{ server_ip }}.campusdual.mkcampus.com`)&& PathRegexp(`^/(grafana|.*\\.php|grafana|js|styles|images)`)"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.{{ server_ip }}.campusdual.mkcampus.com`)"
       - "traefik.http.routers.grafana.entrypoints=web,websecure"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
 
       # Definir un middleware para cambiar el path
-      - "traefik.http.middlewares.grafana-replacepath.stripprefix.prefixes=/grafana"
+      #- "traefik.http.middlewares.grafana-replacepath.stripprefix.prefixes=/grafana"
 
       # Aplicar el middleware al enrutador de Prometheus
-      - "traefik.http.routers.grafana.middlewares=grafana-replacepath@docker"
+      #- "traefik.http.routers.grafana.middlewares=grafana-replacepath@docker"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin # You can change this to your desired admin password
-      - GF_SERVER_ROOT_URL=http://{{ server_ip }}/grafana
+      - GF_SERVER_ROOT_URL=http://grafana.{{ server_ip }}.campusdual.mkcampus.com/
     user: '0'

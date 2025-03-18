@@ -38,16 +38,6 @@ variable "subnet_ids" {
 }
 
 
-
-variable "username"{
-  type=string
-  sensitive=true
-}
-
-variable "password"{
-  type=string
-  sensitive=true
-}
 variable "private_key_path" {
   description = "Ruta al archivo de la clave privada SSH para acceder a las instancias EC2."
   type        = string
