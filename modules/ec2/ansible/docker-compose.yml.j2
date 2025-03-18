@@ -12,7 +12,7 @@ services:
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entryPoints.web.http.redirections.entrypoint.scheme=https"
     post_start:
-     - command: ["/bin/bash", "-c", "chmod 600 /mnt/efs/traefik/letsencrypt/acme.json"] 
+     - command: ["/bin/bash", "-c", "chmod 600 /letsencrypt/acme.json"] 
        user: root
     ports:
       - "80:80"
